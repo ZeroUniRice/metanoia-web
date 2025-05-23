@@ -15,9 +15,8 @@
 	</h3> -->
 	<div class="prose dark:prose-invert max-w-none dark:text-honeydew mb-4">
 		{@html parseMarkdown(branch.content)}
-	</div>
-	<a 
-		href="/branches/{branch.route}"
+	</div>	<a 
+		href="{branch.route}"
 		class="inline-block w-30 hover:bg-primary-dark bg-primary-light dark:hover:bg-primary-default text-white dark:text-gray-400 font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out"
 	>
 		View Details
