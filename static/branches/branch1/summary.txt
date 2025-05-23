@@ -1,0 +1,4 @@
+[CONTENT]
+# Machine Learning Architecture
+We will be looking at the spectrum of computing machines being applied in the ML space.  
+We will consider the strengths and weaknesses of these machines, as well as considering some possible alternative solutions.
