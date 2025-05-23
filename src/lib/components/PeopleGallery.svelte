@@ -60,7 +60,7 @@
 		<div class="flex justify-center mt-4 space-x-2">
 			{#each people as _, index}				<button
 					onclick={() => goToSlide(index)}
-					class="w-3 h-3 rounded-full transition duration-200 {index === currentIndex ? 'bg-primary-default dark:bg-primary-light' : 'bg-gray-300 dark:bg-gray-600'}"
+					class="w-3 h-3 rounded-full transition duration-200 {index === currentIndex ? 'bg-primary-light dark:bg-primary-light' : 'bg-gray-300 dark:bg-gray-600'}"
 					aria-label="Go to person {index + 1}"
 				></button>
 			{/each}

@@ -107,8 +107,7 @@
 		class="bg-neutral dark:bg-gray-800 text-center p-4 text-gray-600 dark:text-gray-400 sticky bottom-0"
 	>
 		<p>
-			Styling with
-			<a href="https://tailwindcss.com/" class="text-primary-default hover:underline">Tailwind CSS</a>.
+			Built statically with svelte js!
 		</p>
 	</footer>
 </div>
