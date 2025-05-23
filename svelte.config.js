@@ -13,16 +13,17 @@ const config = {
 	],
 
 	kit: {
-		// Configure for static site generation
 		adapter: adapter({
-			// default options are shown. On some platforms
-			// these options are set automatically — see below
 			pages: 'build',
 			assets: 'build',
 			fallback: '404.html',
 			precompress: false,
 			strict: true
-		})
+		}),
+		// Add repo name to base path for github pages
+		paths: {
+			base: process.env.NODE_ENV === 'production' ? '/metanoia-web' : ''
+		},
 	},
 };
 

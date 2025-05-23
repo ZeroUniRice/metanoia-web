@@ -1,8 +1,9 @@
 import type { BranchSummary } from './types.js';
 import { browser } from '$app/environment';
+import { base } from '$app/paths';
 
 // Base path for all branch content
-const BRANCHES_BASE_PATH = '/branches';
+const BRANCHES_BASE_PATH = `${base}/branches`;
 
 /**
  * Data that's available at build time for static site generation

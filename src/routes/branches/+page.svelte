@@ -3,6 +3,7 @@
 	import type { BranchSummary } from '$lib/types.js';
 	import { loadBranches } from '$lib/branches.js';
 	import BranchCard from '$lib/components/BranchCard.svelte';
+	import { base } from '$app/paths';
 
 	let branches: BranchSummary[] = $state([]);
 
@@ -16,10 +17,9 @@
 	<meta name="description" content="All research projects and branches at Metanoia." />
 </svelte:head>
 
-<div class="container mx-auto max-w-6xl py-12 px-8">
-	<nav class="mb-8">
+<div class="container mx-auto max-w-6xl py-12 px-8">	<nav class="mb-8">
 		<a 
-			href="/"
+			href="{base}/"
 			class="text-primary-default hover:text-primary-dark dark:text-primary-light dark:hover:text-white"
 		>
 			← Back to Home

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import '../app.css';
 	import { onMount } from 'svelte';
+	import { base } from '$app/paths';
 
 	let { children } = $props();
 	let isDarkMode = $state(
@@ -39,19 +40,19 @@
 	<header class="bg-slate-800 dark:bg-primary-dark shadow-md">
 		<nav class="container mx-12 px-3 py-3 flex justify-between items-center flex-grow min-w-21/22">
 			<div>
-				<a href="/" class="text-xl font-semibold text-white hover:text-secondary-dark">
+				<a href="{base}/" class="text-xl font-semibold text-white hover:text-secondary-dark">
 					Metanoia
 				</a>
 			</div>
 			<div class="flex items-center space-x-4">
 				<a
-					href="/"
+					href="{base}/"
 					class="px-3 py-2 rounded-md text-sm font-medium text-white hover:bg-primary-default dark:hover:bg-primary-dark"
 				>
 					Home
 				</a>
 				<a
-					href="/branches"
+					href="{base}/branches"
 					class="px-3 py-2 rounded-md text-sm font-medium text-white hover:bg-primary-default dark:hover:bg-primary-dark"
 				>
 					Projects

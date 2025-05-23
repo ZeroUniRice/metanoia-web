@@ -36,8 +36,7 @@ try {
   });
 
   const branchData = [];
-  
-  // Process each directory
+    // Process each directory
   for (const branchName of directories) {
     const branchPath = `/branches/${branchName}`;
     const summaryPath = path.join(BRANCHES_DIR, branchName, 'summary.txt');

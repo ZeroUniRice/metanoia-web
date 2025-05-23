@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { parseMarkdown } from '$lib/markdown.js';
+	import { base } from '$app/paths';
 
 	let content = $state('');
 	let loading = $state(true);
-
 	onMount(async () => {
 		try {
-			const response = await fetch('/branches/branch1/summary.txt');
+			const response = await fetch(`${base}/branches/branch1/summary.txt`);
 			if (response.ok) {
 				const text = await response.text();
 				const contentMatch = text.match(/\[CONTENT\]\s*([\s\S]*)/);
@@ -27,10 +27,9 @@
 	<meta name="description" content="Details about Branch 1 project" />
 </svelte:head>
 
-<div class="container mx-auto max-w-4xl py-8 px-6">
-	<nav class="mb-8">
+<div class="container mx-auto max-w-4xl py-8 px-6">	<nav class="mb-8">
 		<a 
-			href="/"
+			href="{base}/"
 			class="text-primary-default hover:text-primary-dark dark:text-primary-light dark:hover:text-white"
 		>
 			← Back to Home
