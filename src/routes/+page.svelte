@@ -11,7 +11,7 @@
 		{
 			image: "https://media.licdn.com/dms/image/v2/C4E03AQFdurd5UOsREw/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1605063552111?e=2147483647&v=beta&t=E26fvWFbS2O55xiakRheAcW0VUFlA9H54LftR3tNqF8",
 			name: "Ray Simar",
-			contact: "rs23@rice.edu"
+			contact: "ray.simar@rice.edu"
 		},
 		{
 			image: "https://img.freepik.com/premium-vector/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-vector-illustration_561158-3383.jpg",
