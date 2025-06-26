@@ -13,8 +13,64 @@
 	let htmlContent = $state('');
 
 	let currentTheme = $state('light');
+	let isArticleZoomed = $state(false);
+	let scrollY = $state(0);
+	let articleElement: HTMLDivElement | undefined = $state();
+	let isAutoScrolling = $state(false);
+	let dynamicBottomMargin = $state(0);
+
+	const ZOOM_THRESHOLD = 300;
+	const ZOOM_SCALE = 1.4;
 
 	onMount(() => {
+		const handleScroll = () => {
+			if (isAutoScrolling) return;
+			
+			scrollY = window.scrollY;
+			const shouldZoom = scrollY > ZOOM_THRESHOLD;
+			
+			if (shouldZoom && !isArticleZoomed) {
+				isArticleZoomed = true;
+				isAutoScrolling = true;
+				
+				if (articleElement) {
+					const originalHeight = articleElement.scrollHeight;
+					
+					let scaleFactor = ZOOM_SCALE;
+					if (window.innerWidth <= 480) {
+						scaleFactor = 1.05;
+					} else if (window.innerWidth <= 768) {
+						scaleFactor = 1.1;
+					}
+					
+					const extraHeight = originalHeight * (scaleFactor - 1);
+					dynamicBottomMargin = extraHeight;
+				}
+				
+				setTimeout(() => {
+					if (articleElement) {
+						const elementTop = articleElement.offsetTop;
+						const offset = 100;
+						
+						window.scrollTo({
+							top: elementTop - offset,
+							behavior: 'smooth'
+						});
+						
+						setTimeout(() => {
+							isAutoScrolling = false;
+						}, 800);
+					}
+				}, 300);
+				
+			} else if (!shouldZoom && isArticleZoomed) {
+				isArticleZoomed = false;
+				dynamicBottomMargin = 0;
+			}
+		};
+
+		window.addEventListener('scroll', handleScroll);
+
 		if (useHtml && data.article.hasHtml) {
 			updateTheme();
 			loadHTMLContent();
@@ -32,9 +88,16 @@
 				attributeFilter: ['class']
 			});
 			
-			return () => observer.disconnect();
+			return () => {
+				observer.disconnect();
+				window.removeEventListener('scroll', handleScroll);
+			};
 		} else {
 			loading = false;
+			
+			return () => {
+				window.removeEventListener('scroll', handleScroll);
+			};
 		}
 	});
 
@@ -124,17 +187,14 @@
 			try {
 				contentContainer.innerHTML = htmlContent;
 				
-				// Apply consistent styling to all page elements
 				const pages = contentContainer.querySelectorAll('.pf');
 				pages.forEach((page, index) => {
 					page.classList.add('pdf-page');
-					// Add spacing between pages
 					if (index > 0 && page instanceof HTMLElement) {
 						page.style.marginTop = '2rem';
 					}
 				});
 
-				// Ensure proper text rendering
 				const textElements = contentContainer.querySelectorAll('.t');
 				textElements.forEach(el => {
 					el.classList.add('pdf-text');
@@ -263,30 +323,42 @@
 		{:else}
 			{#if useHtml && data.article.hasHtml}
 				<div 
-					bind:this={contentContainer}
-					class="article-content-wrapper"
-				></div>
+					bind:this={articleElement}
+					class="article-container {isArticleZoomed ? 'zoomed' : ''}"
+					style="margin-bottom: {dynamicBottomMargin}px;"
+				>
+					<div 
+						bind:this={contentContainer}
+						class="article-content-wrapper"
+					></div>
+				</div>
 			{:else}
-				<div class="max-w-4xl mx-auto">
-					<div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-6 mb-8">
-						<div class="flex items-center gap-3">
-							<svg class="w-6 h-6 text-amber-600 dark:text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-							</svg>
-							<div>
-								<p class="font-medium text-amber-800 dark:text-amber-200">PDF Display Mode</p>
-								<p class="text-sm text-amber-700 dark:text-amber-300">Viewing the original PDF document</p>
+				<div 
+					bind:this={articleElement}
+					class="article-container {isArticleZoomed ? 'zoomed' : ''}"
+					style="margin-bottom: {dynamicBottomMargin}px;"
+				>
+					<div class="max-w-4xl mx-auto">
+						<div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-6 mb-8">
+							<div class="flex items-center gap-3">
+								<svg class="w-6 h-6 text-amber-600 dark:text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+								</svg>
+								<div>
+									<p class="font-medium text-amber-800 dark:text-amber-200">PDF Display Mode</p>
+									<p class="text-sm text-amber-700 dark:text-amber-300">Viewing the original PDF document</p>
+								</div>
 							</div>
 						</div>
-					</div>
-					
-					<div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-						<iframe
-							src="{base}{getThemedPdfPath()}"
-							class="w-full border-0"
-							style="height: 800px;"
-							title="PDF Viewer for {data.article.title}"
-						></iframe>
+						
+						<div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+							<iframe
+								src="{base}{getThemedPdfPath()}"
+								class="w-full border-0"
+								style="height: 800px;"
+								title="PDF Viewer for {data.article.title}"
+							></iframe>
+						</div>
 					</div>
 				</div>
 			{/if}
@@ -295,22 +367,30 @@
 </div>
 
 <style>
-	/* PDF-to-HTML content integration styles */
+	.article-container {
+		transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+		            opacity 0.3s ease,
+		            margin-bottom 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+		transform-origin: center top;
+		will-change: transform;
+	}
+
+	.article-container.zoomed {
+		transform: scale(1.4);
+	}
+
 	:global(.article-content-wrapper) {
-		/* Make the content feel native to the page */
 		max-width: 900px;
 		margin: 0 auto;
 		background: transparent;
 	}
 
-	/* pdf2htmlEX page styling for seamless integration */
 	:global(.article-content-wrapper .pf) {
 		background: white !important;
 		border-radius: 12px !important;
 		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
 		border: 1px solid #e5e7eb !important;
 		margin-bottom: 3rem !important;
-		/* padding: 3rem !important; */
 		overflow: hidden !important;
 		position: relative !important;
 		page-break-after: auto !important;
@@ -322,7 +402,6 @@
 		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
 	}
 
-	/* Text elements - ensure proper rendering over backgrounds */
 	:global(.article-content-wrapper .t) {
 		position: absolute !important;
 		white-space: pre !important;
@@ -333,57 +412,56 @@
 		line-height: 1.3 !important;
 	}
 
-	/* Background images - ensure they stay behind text */
 	:global(.article-content-wrapper .bi) {
 		position: absolute !important;
 		z-index: 1 !important;
 		border-radius: 8px !important;
 	}
 
-	/* Page containers - ensure proper positioning */
 	:global(.article-content-wrapper .pc) {
 		position: relative !important;
 		overflow: hidden !important;
 	}
 
-	/* Responsive scaling for mobile devices */
 	@media (max-width: 768px) {
+		.article-container.zoomed {
+			transform: scale(1.1);
+		}
+		
 		:global(.article-content-wrapper) {
 			max-width: 100%;
 			padding: 0 1rem;
 		}
 		
 		:global(.article-content-wrapper .pf) {
-			/* padding: 1.5rem !important; */
 			margin-bottom: 2rem !important;
 			border-radius: 8px !important;
 		}
 		
-		/* Scale down content on mobile if needed */
 		:global(.article-content-wrapper .pc) {
 			transform-origin: top left;
 		}
 	}
 
 	@media (max-width: 480px) {
+		.article-container.zoomed {
+			transform: scale(1.05);
+		}
+		
 		:global(.article-content-wrapper .pf) {
-			/* padding: 1rem !important; */
 			margin-bottom: 1.5rem !important;
 		}
 	}
 
-	/* Hide any unwanted elements from the conversion */
 	:global(.article-content-wrapper #sidebar),
 	:global(.article-content-wrapper .article-header) {
 		display: none !important;
 	}
 
-	/* Ensure proper text color inheritance */
 	:global(.article-content-wrapper .t) {
 		color: inherit !important;
 	}
 
-	/* Style links within the document */
 	:global(.article-content-wrapper a) {
 		color: #3b82f6 !important;
 		text-decoration: underline !important;
@@ -393,7 +471,6 @@
 		color: #60a5fa !important;
 	}
 
-	/* Improve text selection appearance */
 	:global(.article-content-wrapper .t::selection) {
 		background: rgba(59, 130, 246, 0.3) !important;
 	}
