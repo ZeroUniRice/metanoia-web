@@ -17,8 +17,7 @@ export function parseMarkdown(markdown: string): string {
 		.replace(/\*\*([^*]+)\*\*/g, '<strong class="font-bold">$1</strong>')
 		.replace(/\*([^*]+)\*/g, '<em class="italic">$1</em>')
 		.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto rounded-lg my-4" />')
-		.replace(/\n\n/g, '</p><p class="mb-4 text-gray-700 dark:text-gray-300">')
-		.replace(/\n/g, '<br>');
+		.replace(/\n\n/g, '</p><p class="mb-4 text-gray-700 dark:text-gray-300">');
 
 	if (!html.startsWith('<h')) {
 		html = `<p class="mb-4 text-gray-700 dark:text-gray-300">${html}</p>`;

@@ -99,7 +99,7 @@
 									</p>
 								{/if}
 								<p class="text-sm text-gray-700 dark:text-gray-300 line-clamp-3">
-									{article.abstract}
+									{@html parseMarkdown(article.abstract || 'No abstract available.')}
 								</p>
 							</div>
 						</a>

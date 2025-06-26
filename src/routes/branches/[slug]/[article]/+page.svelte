@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { base } from '$app/paths';
 	import type { PageData } from './$types';
+	import { parseMarkdown } from '$lib/markdown';
 
 	let { data }: { data: PageData } = $props();
 	let contentContainer: HTMLDivElement | undefined = $state();
@@ -271,7 +272,7 @@
 			{/if}
 			{#if data.article.abstract}
 				<p class="text-lg opacity-90 leading-relaxed mb-6 max-w-3xl">
-					{data.article.abstract}
+					{@html parseMarkdown(data.article.abstract)}
 				</p>
 			{/if}
 			<div class="flex items-center justify-between">

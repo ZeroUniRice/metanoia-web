@@ -9,6 +9,7 @@ node_modules
 /build
 static/**/dark
 static/**/light
+/src/lib/branchData.js
 
 # OS
 .DS_Store

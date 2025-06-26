@@ -11,13 +11,13 @@ export default [
     "standardImage": null,
     "articles": [
       {
-        "title": "Red Line Analysis: Automatic vs Manual Graph Extraction\r",
+        "title": "Dotted Red Line Analysis: Automatic vs Manual Graph Extraction\r",
         "slug": "red_line",
         "route": "/branches/Glucose_Monitor/red_line",
         "authors": [
           "Zayne Muhs"
         ],
-        "abstract": "# Red Line Analysis: Automatic vs Manual Graph Extraction\r\nThis paper compares automatic and manual graph line value extraction methods. We analyze the strengths and weaknesses of each approach and evaluate their applicability to different types of datasets, providing insights into when automated extraction is preferable.",
+        "abstract": "# Dotted Red Line Analysis: Automatic vs Manual Graph Extraction\r\nThis paper compares automatic and manual graph line value extraction methods. We analyze the strengths and weaknesses of each approach and evaluate their applicability to different types of datasets, providing insights into when automated extraction is preferable.",
         "basePath": "/branches/Glucose_Monitor/red_line/red-line",
         "thumbnailPath": "/branches/Glucose_Monitor/red_line/red-line.png",
         "hasHtml": true
@@ -26,13 +26,13 @@ export default [
     "articleCount": 1,
     "recentArticles": [
       {
-        "title": "Red Line Analysis: Automatic vs Manual Graph Extraction\r",
+        "title": "Dotted Red Line Analysis: Automatic vs Manual Graph Extraction\r",
         "slug": "red_line",
         "route": "/branches/Glucose_Monitor/red_line",
         "authors": [
           "Zayne Muhs"
         ],
-        "abstract": "# Red Line Analysis: Automatic vs Manual Graph Extraction\r\nThis paper compares automatic and manual graph line value extraction methods. We analyze the strengths and weaknesses of each approach and evaluate their applicability to different types of datasets, providing insights into when automated extraction is preferable.",
+        "abstract": "# Dotted Red Line Analysis: Automatic vs Manual Graph Extraction\r\nThis paper compares automatic and manual graph line value extraction methods. We analyze the strengths and weaknesses of each approach and evaluate their applicability to different types of datasets, providing insights into when automated extraction is preferable.",
         "basePath": "/branches/Glucose_Monitor/red_line/red-line",
         "thumbnailPath": "/branches/Glucose_Monitor/red_line/red-line.png",
         "hasHtml": true
