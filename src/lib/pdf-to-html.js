@@ -7,6 +7,18 @@ import path from 'path';
 import { execSync } from 'child_process';
 
 /**
+ * Converts a Windows path to a WSL-compatible path without changing case.
+ * @param {string} winPath The Windows-style path (e.g., C:\Users\Test)
+ * @returns {string} The WSL-style path (e.g., /mnt/c/Users/Test)
+ */
+function toWslPath(winPath) {
+    if (!winPath || typeof winPath !== 'string') return '';
+    let posixPath = winPath.replace(/\\/g, '/');
+    posixPath = posixPath.replace(/^([A-Z]):/i, (match, p1) => `/mnt/${p1.toLowerCase()}`);
+    return posixPath;
+}
+
+/**
  * Convert a PDF file to HTML using pdf2htmlEX
  * @param {string} pdfPath - Path to the PDF file
  * @param {string} outputDir - Directory to save the HTML file
@@ -53,17 +65,11 @@ export async function convertPDFToHTML(pdfPath, outputDir) {
 			fs.mkdirSync(outputDir, { recursive: true });
 		}
 
-		let commandPdfPath = pdfPath;
-		let commandOutputDir = outputDir;
-		
-		if (pdf2htmlEXPath.includes('wsl')) {
-			commandPdfPath = pdfPath.replace(/^([A-Z]):/i, '/mnt/$1').toLowerCase().replace(/\\/g, '/');
-			commandOutputDir = outputDir.replace(/^([A-Z]):/i, '/mnt/$1').toLowerCase().replace(/\\/g, '/');
-			console.log(`     Converting paths for WSL:`);
-			console.log(`    PDF: ${pdfPath} → ${commandPdfPath}`);
-			console.log(`    Output: ${outputDir} → ${commandOutputDir}`);
-		}
+		const isWsl = pdf2htmlEXPath.includes('wsl');
 
+		const commandPdfPath = isWsl ? toWslPath(pdfPath) : `"${pdfPath}"`;
+		const commandOutputDir = isWsl ? toWslPath(outputDir) : `"${outputDir}"`;
+		
 		const command = [
 			pdf2htmlEXPath,
 			`"${commandPdfPath}"`,

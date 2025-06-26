@@ -20,6 +20,17 @@ if (pdfToolCheck) {
 }
 console.log('');
 
+/**
+ * Converts a Windows path to a WSL-compatible path without changing case.
+ * @param {string} winPath The Windows-style path (e.g., C:\Users\Test)
+ * @returns {string} The WSL-style path (e.g., /mnt/c/Users/Test)
+ */
+function toWslPath(winPath) {
+    if (!winPath || typeof winPath !== 'string') return '';
+    let posixPath = winPath.replace(/\\/g, '/');
+    posixPath = posixPath.replace(/^([A-Z]):/i, (match, p1) => `/mnt/${p1.toLowerCase()}`);
+    return posixPath;
+}
 
 function parseSummaryFile(filePath, expectedTags = ['CONTENT']) {
   if (!fs.existsSync(filePath)) return null;
@@ -149,12 +160,14 @@ async function generateThemedPDFs(pdfPath, articleDir) {
     const baseName = path.basename(pdfPath, '.pdf');
     const lightPdfPath = path.join(lightDir, `${baseName}.pdf`);
     const darkPdfPath = path.join(darkDir, `${baseName}.pdf`);
+
+    const isWsl = gsCommand.includes('wsl');
     
     try {
         console.log(`  Generating light themed PDF: ${path.basename(lightPdfPath)}`);
         
         // Create PostScript file for light theme (clean white background)
-        const lightScriptPath = path.join(lightDir, `${baseName}.ps`);
+        const lightScriptPath = path.join(lightDir, `${path.basename(baseName, '.pdf')}-light.ps`);
         const lightScript = `%!PS-Adobe-3.0
 % Light theme - ensure clean white background
 <<
@@ -173,20 +186,15 @@ async function generateThemedPDFs(pdfPath, articleDir) {
 >> setpagedevice
 `;
         
-        let commandPdfPath = pdfPath;
-        
+    const commandPdfPath = isWsl ? toWslPath(pdfPath) : `"${pdfPath}"`;     
+
         try {
             fs.writeFileSync(lightScriptPath, lightScript);
             
-            let commandLightPdfPath = lightPdfPath;
-            
-            if (gsCommand.includes('wsl')) {
-                commandPdfPath = pdfPath.replace(/^([A-Z]):/i, '/mnt/$1').toLowerCase().replace(/\\/g, '/');
-                commandLightPdfPath = lightPdfPath.replace(/^([A-Z]):/i, '/mnt/$1').toLowerCase().replace(/\\/g, '/');
-            }
-            
-            const lightCommand = `${gsCommand} -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -sOutputFile="${commandLightPdfPath}" "${lightScriptPath.replace(/^([A-Z]):/i, '/mnt/$1').toLowerCase().replace(/\\/g, '/')}" "${commandPdfPath}"`;
-            const lightResult = execSync(lightCommand, { encoding: 'utf8', stdio: 'pipe' });
+            const commandLightPdfPath = isWsl ? toWslPath(lightPdfPath) : `"${lightPdfPath}"`;
+            const commandLightScriptPath = isWsl ? toWslPath(lightScriptPath) : `"${lightScriptPath}"`;
+
+            const lightCommand = `${gsCommand} -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -sOutputFile=${commandLightPdfPath} ${commandLightScriptPath} ${commandPdfPath}`;            const lightResult = execSync(lightCommand, { encoding: 'utf8', stdio: 'pipe' });
             console.log(`    ✓ Light PDF created successfully`);
             
             fs.unlinkSync(lightScriptPath);
@@ -225,14 +233,10 @@ async function generateThemedPDFs(pdfPath, articleDir) {
         try {
             fs.writeFileSync(darkScriptPath, darkScript);
             
-            let commandDarkPdfPath = darkPdfPath;
-            
-            if (gsCommand.includes('wsl')) {
-                commandDarkPdfPath = darkPdfPath.replace(/^([A-Z]):/i, '/mnt/$1').toLowerCase().replace(/\\/g, '/');
-            }
-            
-            const darkCommand = `${gsCommand} -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -sOutputFile="${commandDarkPdfPath}" "${darkScriptPath.replace(/^([A-Z]):/i, '/mnt/$1').toLowerCase().replace(/\\/g, '/')}" "${commandPdfPath}"`;
-            console.log(`    Running command: ${darkCommand}`);
+            const commandDarkPdfPath = isWsl ? toWslPath(darkPdfPath) : `"${darkPdfPath}"`;
+            const commandDarkScriptPath = isWsl ? toWslPath(darkScriptPath) : `"${darkScriptPath}"`;
+
+            const darkCommand = `${gsCommand} -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -sOutputFile=${commandDarkPdfPath} ${commandDarkScriptPath} ${commandPdfPath}`;            console.log(`    Running command: ${darkCommand}`);
             const darkResult = execSync(darkCommand, { encoding: 'utf8', stdio: 'pipe' });
             console.log(`    ✓ Dark PDF created successfully`);
             
