@@ -37,6 +37,13 @@ jobs:
           
       - name: Install dependencies
         run: npm ci
+
+      - name: Install pdf2htmlEX and Ghostscript
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget ghostscript
+          wget https://github.com/pdf2htmlEX/pdf2htmlEX/releases/download/v0.18.8.rc1/pdf2htmlEX-0.18.8.rc1-master-20200630-Ubuntu-bionic-x86_64.deb
+          sudo apt install -y --allow-downgrades ./pdf2htmlEX-0.18.8.rc1-master-20200630-Ubuntu-bionic-x86_64.deb
         
       - name: Build the site
         run: NODE_ENV=production npm run build
