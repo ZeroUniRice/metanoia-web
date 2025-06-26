@@ -68,8 +68,21 @@ export async function convertPDFToHTML(pdfPath, outputDir) {
 		}
 
 		// Convert PDF to HTML with optimal settings for web display
-		const command = `${pdf2htmlEXPath} "${commandPdfPath}" "${pdfBasename}.html" --dest-dir "${commandOutputDir}" --embed-css 1 --embed-javascript 1 --embed-font 1 --embed-image 1 --optimize-text 1 --space-threshold 0.125 --tounicode 1 --process-nontext 1`;
-		
+		const command = [
+			pdf2htmlEXPath,
+			`"${commandPdfPath}"`,
+			`"${pdfBasename}.html"`,
+			`--dest-dir "${commandOutputDir}"`,
+			'--embed-css 1',
+			'--embed-font 0',
+			'--embed-image 0',
+			'--bg-format png',
+			'--embed-javascript 0',
+			'--process-outline 0',
+			'--printing 0',
+			'--no-drm 1'
+		].join(' ');
+
 		console.log(`  Converting PDF to HTML: ${pdfBasename}`);
 		console.log(`  Command: ${command}`);
 		execSync(command, { stdio: 'inherit', timeout: 30000 });

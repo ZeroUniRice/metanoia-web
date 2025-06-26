@@ -8,32 +8,35 @@
 			authors: string[];
 			htmlPath?: string;
 			pdfPath: string;
+			abstract?: string;
 		};
+		showHeader?: boolean;
 	}
-	let { article }: Props = $props();
+	let { article, showHeader = true }: Props = $props();
 	let contentContainer: HTMLDivElement | undefined = $state();
 	let loading = $state(true);
 	let error = $state(false);
 	let useHtml = $state(!!article.htmlPath);
 	let htmlContent = $state('');
 
-	// Reactive statement to inject content when both container and content are ready
 	$effect(() => {
-		console.log('$effect triggered - container:', !!contentContainer, 'htmlContent length:', htmlContent.length, 'useHtml:', useHtml);
-		
 		if (contentContainer && htmlContent && useHtml) {
-			console.log('Injecting content via $effect');
-			console.log('Container:', contentContainer);
-			console.log('Content length:', htmlContent.length);
-			
 			try {
 				contentContainer.innerHTML = htmlContent;
-				console.log('Content injected successfully via $effect');
 				
-				// Apply dark mode classes if needed
-				if (document.documentElement.classList.contains('dark')) {
-					contentContainer.classList.add('dark');
-				}
+				// Apply consistent styling to all page elements
+				const pages = contentContainer.querySelectorAll('.pf');
+				pages.forEach((page, index) => {
+					page.classList.add('pdf-page');
+					if (index > 0 && page instanceof HTMLElement) {
+						page.style.marginTop = '2rem';
+					}
+				});
+
+				const textElements = contentContainer.querySelectorAll('.t');
+				textElements.forEach(el => {
+					el.classList.add('pdf-text');
+				});
 			} catch (err) {
 				console.error('Error injecting content:', err);
 			}
@@ -41,17 +44,11 @@
 	});
 
 	onMount(() => {
-		console.log('ArticleViewer mounted with article:', article);
-		console.log('useHtml:', useHtml, 'htmlPath:', article.htmlPath);
-		
 		if (useHtml && article.htmlPath) {
-			// Use setTimeout to ensure the DOM is fully rendered
 			setTimeout(() => {
 				loadHTMLContent();
 			}, 0);
 		} else {
-			console.log('Using PDF fallback - useHtml:', useHtml, 'htmlPath:', article.htmlPath);
-			// Fallback to PDF viewer
 			loadPDFContent();
 		}
 	});
@@ -61,35 +58,37 @@
 			loading = true;
 			error = false;
 			
-			console.log('Loading HTML content from:', `${base}${article.htmlPath}`);
-			
 			const response = await fetch(`${base}${article.htmlPath}`);
-			console.log('Fetch response status:', response.status, response.ok);
-			
 			if (!response.ok) {
 				throw new Error(`Failed to load HTML: ${response.status}`);
 			}
 			
 			const fetchedHtml = await response.text();
-			console.log('HTML content length:', fetchedHtml.length);
-			console.log('HTML content preview:', fetchedHtml.substring(0, 200));
 			
-			// Extract the body content from the converted HTML
-			const bodyMatch = fetchedHtml.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-			const contentToInsert = bodyMatch ? bodyMatch[1] : fetchedHtml;
+			// Extract and clean the page container content
+			let contentToInsert = '';
+			const pageContainerMatch = fetchedHtml.match(/<div id="page-container"[^>]*>([\s\S]*?)<\/div>\s*<\/body>/i);
 			
-			console.log('Content to insert length:', contentToInsert.length);
+			if (pageContainerMatch) {
+				contentToInsert = pageContainerMatch[1];
+			} else {
+				const bodyMatch = fetchedHtml.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+				if (bodyMatch) {
+					let bodyContent = bodyMatch[1];
+					bodyContent = bodyContent.replace(/<div class="article-header[^>]*>[\s\S]*?<\/div>/i, '');
+					bodyContent = bodyContent.replace(/<div id="sidebar"[^>]*>[\s\S]*?<\/div>/i, '');
+					contentToInsert = bodyContent;
+				} else {
+					contentToInsert = fetchedHtml;
+				}
+			}
 			
-			// Set the content in state - this will trigger the $effect
 			htmlContent = contentToInsert;
-			
 			loading = false;
 		} catch (err) {
 			console.error('Error loading HTML content:', err);
 			error = true;
 			loading = false;
-			
-			// Fallback to PDF viewer
 			useHtml = false;
 			loadPDFContent();
 		}
@@ -97,7 +96,6 @@
 
 	function loadPDFContent() {
 		loading = false;
-		// This will show the PDF iframe fallback
 	}
 
 	function downloadPDF() {
@@ -108,25 +106,25 @@
 	}
 </script>
 
-<div class="article-viewer w-full h-full">
+<div class="article-viewer w-full">
 	{#if loading}
-		<div class="flex items-center justify-center h-64">
-			<div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-default"></div>
-			<span class="ml-3 text-gray-600 dark:text-gray-400">Loading article...</span>
+		<div class="flex items-center justify-center py-16">
+			<div class="text-center">
+				<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-default mx-auto mb-3"></div>
+				<span class="text-sm text-gray-600 dark:text-gray-400">Loading article...</span>
+			</div>
 		</div>
-	{:else if useHtml && article.htmlPath}
-		<!-- HTML Content Display -->
-		<div class="html-content-wrapper">
-			<div class="flex items-center justify-between mb-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-				<div>
-					<h2 class="text-lg font-semibold text-gray-900 dark:text-white">{article.title}</h2>
-					{#if article.authors.length > 0}
-						<p class="text-sm text-gray-600 dark:text-gray-400">By {article.authors.join(', ')}</p>
-					{/if}
-				</div>
+	{:else if error}
+		<div class="py-8">
+			<div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 text-center">
+				<svg class="w-8 h-8 text-red-500 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+				</svg>
+				<h3 class="font-medium text-red-800 dark:text-red-200 mb-2">Failed to Load Article</h3>
+				<p class="text-sm text-red-600 dark:text-red-400 mb-4">Unable to display the article content.</p>
 				<button
 					onclick={downloadPDF}
-					class="flex items-center gap-2 px-4 py-2 bg-primary-default hover:bg-primary-dark text-white rounded-lg transition-colors"
+					class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg transition-colors"
 				>
 					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -134,69 +132,137 @@
 					Download PDF
 				</button>
 			</div>
-			
-			<div 
-				bind:this={contentContainer}
-				class="html-content bg-white dark:bg-gray-900 rounded-lg shadow-sm"
-				style="min-height: 600px;"
-			></div>
 		</div>
 	{:else}
-		<!-- PDF Fallback -->
-		<div class="pdf-fallback">
-			<div class="flex items-center justify-between mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
-				<div class="flex items-center gap-3">
-					<svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-					</svg>
-					<div>
-						<p class="text-sm font-medium text-yellow-800 dark:text-yellow-200">PDF Display Mode</p>
-						<p class="text-xs text-yellow-700 dark:text-yellow-300">HTML conversion not available</p>
-					</div>
-				</div>
+		{#if showHeader}
+			<!-- Article header -->
+			<div class="mb-6 p-6 bg-gradient-to-r from-primary-light to-primary-default text-white rounded-lg">
+				<h2 class="text-2xl font-bold mb-2">{article.title}</h2>
+				{#if article.authors.length > 0}
+					<p class="text-lg opacity-90 mb-2">By {article.authors.join(', ')}</p>
+				{/if}
+				{#if article.abstract}
+					<p class="opacity-90 text-sm leading-relaxed mb-4">{article.abstract}</p>
+				{/if}
 				<button
 					onclick={downloadPDF}
-					class="flex items-center gap-2 px-3 py-1.5 bg-yellow-600 hover:bg-yellow-700 text-white text-sm rounded transition-colors"
+					class="inline-flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg transition-colors border border-white/20 text-sm"
 				>
 					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
 					</svg>
-					Download
+					Download PDF
 				</button>
 			</div>
-			
-			<iframe
-				src="{base}{article.pdfPath}"
-				class="w-full border border-gray-200 dark:border-gray-700 rounded-lg"
-				style="height: 600px;"
-				title="PDF Viewer for {article.title}"
-			></iframe>
-		</div>
+		{/if}
+
+		{#if useHtml && article.htmlPath}
+			<!-- PDF-to-HTML content display -->
+			<div 
+				bind:this={contentContainer}
+				class="html-content-container"
+			></div>
+		{:else}
+			<!-- PDF fallback -->
+			<div class="pdf-fallback">
+				<div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-4">
+					<div class="flex items-center gap-3">
+						<svg class="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+						</svg>
+						<div>
+							<p class="text-sm font-medium text-amber-800 dark:text-amber-200">PDF Display Mode</p>
+							<p class="text-xs text-amber-700 dark:text-amber-300">HTML conversion not available</p>
+						</div>
+					</div>
+				</div>
+				
+				<iframe
+					src="{base}{article.pdfPath}"
+					class="w-full border border-gray-200 dark:border-gray-700 rounded-lg"
+					style="height: 500px;"
+					title="PDF Viewer for {article.title}"
+				></iframe>
+			</div>
+		{/if}
 	{/if}
 </div>
 
 <style>
-	:global(.html-content) {
-		/* Ensure the HTML content integrates well with the site */
-		font-family: system-ui, -apple-system, sans-serif;
+	/* Streamlined styling for embedded article content */
+	:global(.html-content-container) {
+		background: transparent;
+		max-width: 800px;
+		margin: 0 auto;
 	}
-	
-	:global(.html-content .article-header) {
-		/* Override the header from the converted HTML since we have our own */
-		display: none;
+
+	/* PDF page styling for component use */
+	:global(.html-content-container .pf) {
+		background: white !important;
+		border-radius: 8px !important;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+		border: 1px solid #e5e7eb !important;
+		margin-bottom: 2rem !important;
+		padding: 2rem !important;
+		overflow: hidden !important;
+		position: relative !important;
 	}
-	
-	/* Ensure proper spacing and typography for converted content */
-	:global(.html-content .pf) {
-		margin-bottom: 1.5rem;
-		padding: 2rem;
-		background: white;
-		border-radius: 0.5rem;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+	:global(.dark .html-content-container .pf) {
+		background: #1f2937 !important;
+		border-color: #374151 !important;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
 	}
-	
-	:global(.dark .html-content .pf) {
-		background: #1f2937;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+
+	/* Text elements */
+	:global(.html-content-container .t) {
+		position: absolute !important;
+		white-space: pre !important;
+		overflow: visible !important;
+		z-index: 10 !important;
+		user-select: text !important;
+		cursor: text !important;
+		line-height: 1.2 !important;
+	}
+
+	/* Background images */
+	:global(.html-content-container .bi) {
+		position: absolute !important;
+		z-index: 1 !important;
+		border-radius: 4px !important;
+	}
+
+	/* Page containers */
+	:global(.html-content-container .pc) {
+		position: relative !important;
+		overflow: hidden !important;
+	}
+
+	/* Hide unwanted elements */
+	:global(.html-content-container #sidebar),
+	:global(.html-content-container .article-header) {
+		display: none !important;
+	}
+
+	/* Responsive adjustments */
+	@media (max-width: 768px) {
+		:global(.html-content-container) {
+			max-width: 100%;
+		}
+		
+		:global(.html-content-container .pf) {
+			padding: 1rem !important;
+			margin-bottom: 1rem !important;
+			border-radius: 6px !important;
+		}
+	}
+
+	/* Text selection */
+	:global(.html-content-container .t::selection) {
+		background: rgba(59, 130, 246, 0.3) !important;
+	}
+
+	:global(.dark .html-content-container .t::selection) {
+		background: rgba(96, 165, 250, 0.3) !important;
 	}
 </style>
