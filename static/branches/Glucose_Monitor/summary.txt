@@ -1,4 +1,5 @@
+[NAME]
+Monitoring Metabolism
 [CONTENT]
-# Monitoring Metabolism
 We will be looking at the impact of the new wave of personal metabolic sensors like CGMs (Continuous Glucose Monitors) and the window they give us into the hidden variables like the hormones of insulin and glucagon.
 From the CGM data, we can build models to predict the future metabolic state of an individual.

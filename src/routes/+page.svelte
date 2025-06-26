@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import type { Person, BranchSummary } from '$lib/types.js';
+	import type { Person, Branch } from '$lib/types.js';
 	import { loadBranches } from '$lib/branches.js';
 	import PeopleGallery from '$lib/components/PeopleGallery.svelte';
 	import BranchCard from '$lib/components/BranchCard.svelte';
 
-	let branches: BranchSummary[] = $state([]);
+	let branches: Branch[] = $state([]);
 
 	const people: Person[] = [
 		{

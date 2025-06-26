@@ -57,6 +57,12 @@
 				>
 					Projects
 				</a>
+				<a
+					href="{base}/pdf-demo"
+					class="px-3 py-2 rounded-md text-sm font-medium text-white hover:bg-primary-default dark:hover:bg-primary-dark"
+				>
+					Papers
+				</a>
 				<button
 					onclick={toggleDarkMode}
 					class="p-2 rounded-md text-white hover:bg-primary-default dark:hover:bg-primary-dark focus:outline-none"

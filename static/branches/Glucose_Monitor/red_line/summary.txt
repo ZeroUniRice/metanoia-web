@@ -1,0 +1,6 @@
+[CONTENT]
+# Red Line Analysis: Automatic vs Manual Graph Extraction
+This paper compares automatic and manual graph line value extraction methods. We analyze the strengths and weaknesses of each approach and evaluate their applicability to different types of datasets, providing insights into when automated extraction is preferable.
+
+[AUTHORS]
+Zayne Muhs

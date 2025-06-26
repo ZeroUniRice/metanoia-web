@@ -1,9 +1,5 @@
-import type { BranchSummary } from './types.js';
+import type { Branch, Article } from './types.js';
 import { browser } from '$app/environment';
-import { base } from '$app/paths';
-
-// Base path for all branch content
-const BRANCHES_BASE_PATH = `${base}/branches`;
 
 /**
  * Data that's available at build time for static site generation
@@ -11,47 +7,23 @@ const BRANCHES_BASE_PATH = `${base}/branches`;
  */
 import branchData from './branchData.js';
 
-export async function loadBranches(): Promise<BranchSummary[]> {
-	if (!browser) {
-		return branchData;
-	}
-	
-	try {
-		const dirListingResponse = await fetch(`${BRANCHES_BASE_PATH}/_index.json`);
-		
-		if (!dirListingResponse.ok) {
-			console.error('Failed to load branch directory listing');
-			return [];
-		}
-		
-		const branchDirs = await dirListingResponse.json();
-		const branches: BranchSummary[] = [];
-		
-		for (const branchName of branchDirs) {
-			const path = `${BRANCHES_BASE_PATH}/${branchName}`;
-			const branchResponse = await fetch(`${path}/summary.txt`);
-			
-			if (branchResponse.ok) {
-				const content = await branchResponse.text();
-				const parsedBranch = parseBranchSummary(branchName, path, content);
-				branches.push(parsedBranch);
-			}
-		}
-		
-		return branches;
-	} catch (error) {
-		console.error('Error loading branches:', error);
-		return [];
-	}
+export async function loadBranches(): Promise<Branch[]> {
+	// For static site generation, always use the pre-built data
+	// This ensures consistency across browser and SSR environments
+	return branchData;
 }
 
-function parseBranchSummary(name: string, route: string, content: string): BranchSummary {
-	const contentMatch = content.match(/\[CONTENT\]\s*([\s\S]*)/);
-	const extractedContent = contentMatch ? contentMatch[1].trim() : content;
+export async function getBranchBySlug(slug: string): Promise<Branch | null> {
+	const branches = await loadBranches();
+	return branches.find(branch => branch.slug === slug) || null;
+}
+
+export async function getArticleBySlug(branchSlug: string, articleSlug: string): Promise<{ branch: Branch; article: Article } | null> {
+	const branch = await getBranchBySlug(branchSlug);
+	if (!branch) return null;
 	
-	return {
-		name,
-		route,
-		content: extractedContent
-	};
+	const article = branch.articles.find(article => article.slug === articleSlug);
+	if (!article) return null;
+	
+	return { branch, article };
 }

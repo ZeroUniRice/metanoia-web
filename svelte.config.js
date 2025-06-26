@@ -7,9 +7,6 @@ const config = {
 	// for more information about preprocessors
 	preprocess: [
 		vitePreprocess(),
-		sveltePreprocess({
-			postcss: true,
-		}),
 	],
 
 	kit: {

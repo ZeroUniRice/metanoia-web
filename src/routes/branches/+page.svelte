@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import type { BranchSummary } from '$lib/types.js';
+	import type { Branch } from '$lib/types.js';
 	import { loadBranches } from '$lib/branches.js';
 	import BranchCard from '$lib/components/BranchCard.svelte';
 	import { base } from '$app/paths';
 
-	let branches: BranchSummary[] = $state([]);
+	let branches: Branch[] = $state([]);
 
 	onMount(async () => {
 		branches = await loadBranches();
