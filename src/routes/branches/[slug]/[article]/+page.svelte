@@ -26,44 +26,43 @@
 	onMount(() => {
 		const handleScroll = () => {
 			if (isAutoScrolling) return;
-			
+
 			scrollY = window.scrollY;
 			const shouldZoom = scrollY > ZOOM_THRESHOLD;
-			
+
 			if (shouldZoom && !isArticleZoomed) {
 				isArticleZoomed = true;
 				isAutoScrolling = true;
-				
+
 				if (articleElement) {
 					const originalHeight = articleElement.scrollHeight;
-					
+
 					let scaleFactor = ZOOM_SCALE;
 					if (window.innerWidth <= 480) {
 						scaleFactor = 1.05;
 					} else if (window.innerWidth <= 768) {
 						scaleFactor = 1.1;
 					}
-					
+
 					const extraHeight = originalHeight * (scaleFactor - 1);
 					dynamicBottomMargin = extraHeight;
 				}
-				
+
 				setTimeout(() => {
 					if (articleElement) {
 						const elementTop = articleElement.offsetTop;
 						const offset = 100;
-						
+
 						window.scrollTo({
 							top: elementTop - offset,
 							behavior: 'smooth'
 						});
-						
+
 						setTimeout(() => {
 							isAutoScrolling = false;
 						}, 800);
 					}
 				}, 300);
-				
 			} else if (!shouldZoom && isArticleZoomed) {
 				isArticleZoomed = false;
 				dynamicBottomMargin = 0;
@@ -75,7 +74,7 @@
 		if (useHtml && data.article.hasHtml) {
 			updateTheme();
 			loadHTMLContent();
-			
+
 			const observer = new MutationObserver(() => {
 				const newTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
 				if (newTheme !== currentTheme) {
@@ -83,19 +82,19 @@
 					loadHTMLContent();
 				}
 			});
-			
+
 			observer.observe(document.documentElement, {
 				attributes: true,
 				attributeFilter: ['class']
 			});
-			
+
 			return () => {
 				observer.disconnect();
 				window.removeEventListener('scroll', handleScroll);
 			};
 		} else {
 			loading = false;
-			
+
 			return () => {
 				window.removeEventListener('scroll', handleScroll);
 			};
@@ -124,15 +123,15 @@
 		try {
 			loading = true;
 			error = false;
-			
+
 			const htmlPath = getThemedHtmlPath();
 			if (!htmlPath) throw new Error('No HTML path available');
-			
+
 			const response = await fetch(`${base}${htmlPath}`);
 			if (!response.ok) throw new Error(`Failed to load HTML: ${response.status}`);
-			
+
 			const fetchedHtml = await response.text();
-			
+
 			const styleRegex = /<style[^>]*>([\s\S]*?)<\/style>/gi;
 			const pageContainerRegex = /<div id="page-container"[^>]*>([\s\S]*)<\/div>/i;
 
@@ -150,7 +149,7 @@
 					layoutStyles += styleBlock;
 				}
 			}
-			
+
 			if (pageContainerMatch) {
 				pageContainerContent = pageContainerMatch[1];
 			}
@@ -169,7 +168,7 @@
 			// Remove font-size:1px; from the styles due to weird rendering issues
 			layoutStyles = layoutStyles.replace(/font-size:\s*1px;/g, '');
 
-			console.log(layoutStyles)
+			console.log(layoutStyles);
 
 			fontStyles = parsedFontStyles;
 			htmlContent = layoutStyles + pageContainerContent;
@@ -187,7 +186,7 @@
 		if (contentContainer && htmlContent && useHtml) {
 			try {
 				contentContainer.innerHTML = htmlContent;
-				
+
 				const pages = contentContainer.querySelectorAll('.pf');
 				pages.forEach((page, index) => {
 					page.classList.add('pdf-page');
@@ -197,10 +196,9 @@
 				});
 
 				const textElements = contentContainer.querySelectorAll('.t');
-				textElements.forEach(el => {
+				textElements.forEach((el) => {
 					el.classList.add('pdf-text');
 				});
-
 			} catch (err) {
 				console.error('Error injecting content:', err);
 			}
@@ -215,9 +213,10 @@
 	}
 
 	function getThemedPdfPath() {
-		const isDarkMode = document.documentElement.classList.contains('dark') || 
+		const isDarkMode =
+			document.documentElement.classList.contains('dark') ||
 			window.matchMedia('(prefers-color-scheme: dark)').matches;
-		
+
 		if (isDarkMode) {
 			return `${data.article.basePath}-dark.pdf`;
 		} else {
@@ -228,50 +227,50 @@
 
 <svelte:head>
 	<title>{data.article.title} - {data.branch.name} - Metanoia</title>
-	<meta name="description" content="{data.article.abstract}" />
+	<meta name="description" content={data.article.abstract} />
 
 	{#if fontStyles}
 		{@html fontStyles}
 	{/if}
 </svelte:head>
 
-<nav class="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+<nav class="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
 	<div class="container mx-auto max-w-6xl px-6 py-4">
 		<div class="flex items-center space-x-2 text-sm">
-			<a 
+			<a
 				href="{base}/branches"
-				class="text-primary-default hover:text-primary-dark dark:text-primary-light dark:hover:text-white transition-colors"
+				class="text-primary-default hover:text-primary-dark dark:text-primary-light transition-colors dark:hover:text-white"
 			>
 				Projects
 			</a>
 			<span class="text-gray-400 dark:text-gray-600">→</span>
-			<a 
+			<a
 				href="{base}/branches/{data.branch.slug}"
-				class="text-primary-default hover:text-primary-dark dark:text-primary-light dark:hover:text-white transition-colors"
+				class="text-primary-default hover:text-primary-dark dark:text-primary-light transition-colors dark:hover:text-white"
 			>
 				{data.branch.name}
 			</a>
 			<span class="text-gray-400 dark:text-gray-600">→</span>
-			<span class="text-gray-700 dark:text-gray-300 font-medium">
+			<span class="font-medium text-gray-700 dark:text-gray-300">
 				{data.article.title}
 			</span>
 		</div>
 	</div>
 </nav>
 
-<div class="bg-gradient-to-r from-primary-light to-primary-default text-white">
+<div class="from-primary-light to-primary-default bg-gradient-to-r text-white">
 	<div class="container mx-auto max-w-6xl px-6 py-12">
 		<div class="max-w-4xl">
-			<h1 class="text-4xl font-bold mb-4">
+			<h1 class="mb-4 text-4xl font-bold">
 				{data.article.title}
 			</h1>
 			{#if data.article.authors.length > 0}
-				<p class="text-xl opacity-90 mb-4">
+				<p class="mb-4 text-xl opacity-90">
 					By {data.article.authors.join(', ')}
 				</p>
 			{/if}
 			{#if data.article.abstract}
-				<p class="text-lg opacity-90 leading-relaxed mb-6 max-w-3xl">
+				<p class="mb-6 max-w-3xl text-lg leading-relaxed opacity-90">
 					{@html parseMarkdown(data.article.abstract)}
 				</p>
 			{/if}
@@ -281,10 +280,15 @@
 				</div>
 				<button
 					onclick={downloadPDF}
-					class="flex items-center gap-2 px-6 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg transition-colors border border-white/20"
+					class="flex items-center gap-2 rounded-lg border border-white/20 bg-white/20 px-6 py-3 backdrop-blur-sm transition-colors hover:bg-white/30"
 				>
-					<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+					<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+						/>
 					</svg>
 					Download PDF
 				</button>
@@ -298,61 +302,99 @@
 		{#if loading}
 			<div class="flex items-center justify-center py-24">
 				<div class="text-center">
-					<div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-default mx-auto mb-4"></div>
+					<div
+						class="border-primary-default mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2"
+					></div>
 					<span class="text-gray-600 dark:text-gray-400">Loading article...</span>
 				</div>
 			</div>
 		{:else if error}
-			<div class="max-w-2xl mx-auto py-12">
-				<div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-8 text-center">
-					<svg class="w-12 h-12 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+			<div class="mx-auto max-w-2xl py-12">
+				<div
+					class="rounded-lg border border-red-200 bg-red-50 p-8 text-center dark:border-red-800 dark:bg-red-900/20"
+				>
+					<svg
+						class="mx-auto mb-4 h-12 w-12 text-red-500"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+						/>
 					</svg>
-					<h2 class="text-xl font-semibold text-red-800 dark:text-red-200 mb-3">Failed to Load Article</h2>
-					<p class="text-red-600 dark:text-red-400 mb-6">The article content could not be loaded. Please try downloading the PDF instead.</p>
+					<h2 class="mb-3 text-xl font-semibold text-red-800 dark:text-red-200">
+						Failed to Load Article
+					</h2>
+					<p class="mb-6 text-red-600 dark:text-red-400">
+						The article content could not be loaded. Please try downloading the PDF instead.
+					</p>
 					<button
 						onclick={downloadPDF}
-						class="inline-flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+						class="inline-flex items-center gap-2 rounded-lg bg-red-600 px-6 py-3 text-white transition-colors hover:bg-red-700"
 					>
-						<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+						<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+							/>
 						</svg>
 						Download PDF
 					</button>
 				</div>
 			</div>
-		{:else}
-			{#if useHtml && data.article.hasHtml}
-				<div 
-					bind:this={articleElement}
-					class="article-container {isArticleZoomed ? 'zoomed' : ''}"
-					style="margin-bottom: {dynamicBottomMargin}px;"
-				>
-					<div 
-						bind:this={contentContainer}
-						class="article-content-wrapper"
-					></div>
+		{:else if useHtml && data.article.hasHtml}
+			<div
+				bind:this={articleElement}
+				class="article-container {isArticleZoomed ? 'zoomed' : ''}"
+				style="margin-bottom: {dynamicBottomMargin}px;"
+			>
+				<div class="article-scroll-wrapper">
+					<div bind:this={contentContainer} class="article-content-wrapper"></div>
 				</div>
-			{:else}
-				<div 
-					bind:this={articleElement}
-					class="article-container {isArticleZoomed ? 'zoomed' : ''}"
-					style="margin-bottom: {dynamicBottomMargin}px;"
-				>
-					<div class="max-w-4xl mx-auto">
-						<div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-6 mb-8">
+			</div>
+		{:else}
+			<div
+				bind:this={articleElement}
+				class="article-container {isArticleZoomed ? 'zoomed' : ''}"
+				style="margin-bottom: {dynamicBottomMargin}px;"
+			>
+				<div class="article-scroll-wrapper">
+					<div class="mx-auto max-w-4xl">
+						<div
+							class="mb-8 rounded-lg border border-amber-200 bg-amber-50 p-6 dark:border-amber-800 dark:bg-amber-900/20"
+						>
 							<div class="flex items-center gap-3">
-								<svg class="w-6 h-6 text-amber-600 dark:text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+								<svg
+									class="h-6 w-6 flex-shrink-0 text-amber-600 dark:text-amber-400"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+									/>
 								</svg>
 								<div>
 									<p class="font-medium text-amber-800 dark:text-amber-200">PDF Display Mode</p>
-									<p class="text-sm text-amber-700 dark:text-amber-300">Viewing the original PDF document</p>
+									<p class="text-sm text-amber-700 dark:text-amber-300">
+										Viewing the original PDF document
+									</p>
 								</div>
 							</div>
 						</div>
-						
-						<div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+
+						<div
+							class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800"
+						>
 							<iframe
 								src="{base}{getThemedPdfPath()}"
 								class="w-full border-0"
@@ -362,16 +404,17 @@
 						</div>
 					</div>
 				</div>
-			{/if}
+			</div>
 		{/if}
 	</div>
 </div>
 
 <style>
 	.article-container {
-		transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
-		            opacity 0.3s ease,
-		            margin-bottom 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+		transition:
+			transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+			opacity 0.3s ease,
+			margin-bottom 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 		transform-origin: center top;
 		will-change: transform;
 	}
@@ -380,16 +423,31 @@
 		transform: scale(1.4);
 	}
 
+	.article-scroll-wrapper {
+		width: 100%;
+		overflow-x: auto;
+		overflow-y: visible;
+		scrollbar-width: none;
+		-ms-overflow-style: none;
+	}
+
+	.article-scroll-wrapper::-webkit-scrollbar {
+		display: none;
+	}
+
 	:global(.article-content-wrapper) {
 		max-width: 900px;
 		margin: 0 auto;
 		background: transparent;
+		min-width: 900px;
 	}
 
 	:global(.article-content-wrapper .pf) {
 		background: white !important;
 		border-radius: 12px !important;
-		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+		box-shadow:
+			0 4px 6px -1px rgba(0, 0, 0, 0.1),
+			0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
 		border: 1px solid #e5e7eb !important;
 		margin-bottom: 3rem !important;
 		overflow: hidden !important;
@@ -400,7 +458,9 @@
 	:global(.dark .article-content-wrapper .pf) {
 		background: #1f2937 !important;
 		border-color: #374151 !important;
-		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
+		box-shadow:
+			0 4px 6px -1px rgba(0, 0, 0, 0.3),
+			0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
 	}
 
 	:global(.article-content-wrapper .t) {
@@ -428,17 +488,17 @@
 		.article-container.zoomed {
 			transform: scale(1.1);
 		}
-		
+
 		:global(.article-content-wrapper) {
-			max-width: 100%;
+			min-width: 800px;
 			padding: 0 1rem;
 		}
-		
+
 		:global(.article-content-wrapper .pf) {
 			margin-bottom: 2rem !important;
 			border-radius: 8px !important;
 		}
-		
+
 		:global(.article-content-wrapper .pc) {
 			transform-origin: top left;
 		}
@@ -448,7 +508,11 @@
 		.article-container.zoomed {
 			transform: scale(1.05);
 		}
-		
+
+		:global(.article-content-wrapper) {
+			min-width: 700px;
+		}
+
 		:global(.article-content-wrapper .pf) {
 			margin-bottom: 1.5rem !important;
 		}
