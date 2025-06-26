@@ -11,10 +11,10 @@ export interface Article {
 	authors: string[];
 	abstract: string;
 	pdfPath: string;
-	lightPdfPath?: string; // Path to light-themed PDF version
-	darkPdfPath?: string; // Path to dark-themed PDF version
+	lightPdfPath?: string;
+	darkPdfPath?: string;
 	thumbnailPath?: string;
-	htmlPath?: string; // Path to converted HTML version of the PDF
+	htmlPath?: string;
 }
 
 export interface Branch {
@@ -29,7 +29,7 @@ export interface Branch {
 	recentArticles: Article[];
 }
 
-// Legacy interfaces for backward compatibility
+// Legacy interfaces possible for removal
 export interface BranchSummary {
 	name: string;
 	content: string;

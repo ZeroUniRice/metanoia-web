@@ -111,7 +111,7 @@
 	</main>
 
 	<footer
-		class="bg-neutral dark:bg-gray-800 text-center p-4 text-gray-600 dark:text-gray-400 sticky bottom-0"
+		class="bg-neutral dark:bg-gray-800 text-center p-4 text-gray-600 dark:text-gray-400 sticky bottom-0 z-11"
 	>
 		<p>
 			Built statically with svelte js!

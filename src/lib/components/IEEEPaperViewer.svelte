@@ -1,5 +1,6 @@
 <!-- IEEE Conference Paper Viewer Component -->
 <script lang="ts">
+	// DEPRECATED: Display is done using HTML from pdf2htmlex for better dynamic rendering
 	import type { IEEEPaper } from '$lib/types.js';
 	import { onMount } from 'svelte';
 

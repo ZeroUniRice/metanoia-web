@@ -24,8 +24,8 @@
 </script>
 
 <div class="relative overflow-hidden" bind:this={containerRef}>
-	<div 
-		class="flex transition-transform duration-300 ease-in-out px-8"
+	<div
+		class="flex px-8 transition-transform duration-300 ease-in-out"
 		style="transform: translateX(-{currentIndex * 100}%)"
 	>
 		{#each people as person, index}
@@ -33,34 +33,40 @@
 				<PersonCard {person} />
 			</div>
 			{#if index < people.length - 1}
-				<div class="min-w-16"> </div>
+				<div class="min-w-16"></div>
 			{/if}
 		{/each}
 	</div>
 
-	{#if people.length > 1}		<button
+	{#if people.length > 1}
+		<button
 			onclick={prevSlide}
-			class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-gray-800 dark:bg-gray-600 text-white p-2 rounded-full hover:bg-gray-700 dark:hover:bg-gray-500 transition duration-200"
+			class="absolute top-1/2 left-2 -translate-y-1/2 transform rounded-full bg-gray-800 p-2 text-white transition duration-200 hover:bg-gray-700 dark:bg-gray-600 dark:hover:bg-gray-500"
 			aria-label="Previous person"
 		>
-			<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+			<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"
+				></path>
 			</svg>
 		</button>
 		<button
 			onclick={nextSlide}
-			class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gray-800 dark:bg-gray-600 text-white p-2 rounded-full hover:bg-gray-700 dark:hover:bg-gray-500 transition duration-200"
+			class="absolute top-1/2 right-2 -translate-y-1/2 transform rounded-full bg-gray-800 p-2 text-white transition duration-200 hover:bg-gray-700 dark:bg-gray-600 dark:hover:bg-gray-500"
 			aria-label="Next person"
 		>
-			<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+			<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"
+				></path>
 			</svg>
 		</button>
 
-		<div class="flex justify-center mt-4 space-x-2">
-			{#each people as _, index}				<button
+		<div class="mt-4 flex justify-center space-x-2">
+			{#each people as _, index}
+				<button
 					onclick={() => goToSlide(index)}
-					class="w-3 h-3 rounded-full transition duration-200 {index === currentIndex ? 'bg-primary-light dark:bg-primary-light' : 'bg-gray-300 dark:bg-gray-600'}"
+					class="h-3 w-3 rounded-full transition duration-200 {index === currentIndex
+						? 'bg-primary-light dark:bg-primary-light'
+						: 'bg-gray-300 dark:bg-gray-600'}"
 					aria-label="Go to person {index + 1}"
 				></button>
 			{/each}

@@ -1,5 +1,5 @@
-<!-- filepath: e:\CodingProjects\metanoia-web\src\lib\components\PDFViewer.svelte -->
 <script lang="ts">
+	// Currently obsolete, but kept for reference or future use
 	import type { PDFContent, PDFSection, PDFMath, PDFFigure, PDFTable } from '$lib/types.js';
 	import { onMount } from 'svelte';
 
@@ -24,18 +24,15 @@
 	});
 
 	async function loadKaTeX() {
-		// Load KaTeX CSS
 		const link = document.createElement('link');
 		link.rel = 'stylesheet';
 		link.href = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css';
 		document.head.appendChild(link);
 
-		// Load KaTeX JS
 		const script = document.createElement('script');
 		script.src = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js';
 		document.head.appendChild(script);
 
-		// Load auto-render extension
 		const autoRenderScript = document.createElement('script');
 		autoRenderScript.src = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js';
 		document.head.appendChild(autoRenderScript);

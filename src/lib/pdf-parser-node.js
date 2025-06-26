@@ -1,7 +1,7 @@
 // @ts-nocheck
-// PDF parser for Node.js environment (build scripts)
 import * as pdfjsLib from 'pdfjs-dist';
 import { readFileSync } from 'fs';
+// DEPRECATED: Not worth continuing with this
 
 /**
  * Parse an IEEE PDF file and extract metadata and content

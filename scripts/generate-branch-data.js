@@ -4,27 +4,23 @@
  */
 import fs from 'fs';
 import path from 'path';
-import { convertPDFToHTML, postProcessHTML, isPdf2HtmlEXAvailable, getPdf2HtmlEXInstallInstructions } from '../src/lib/pdf-to-html.js';
+import { convertPDFToHTML, postProcessHTML, isPdf2HtmlEXAvailable } from '../src/lib/pdf-to-html.js';
 import { execSync } from 'child_process';
 
 const STATIC_DIR = path.resolve('static');
 const BRANCHES_DIR = path.join(STATIC_DIR, 'branches');
 const OUTPUT_FILE = path.resolve('src', 'lib', 'branchData.js');
 
-// Check for pdf2htmlEX availability at runtime for each article
-console.log('🔍 Checking for pdf2htmlEX availability...');
+console.log('Checking for pdf2htmlEX availability...');
 const pdfToolCheck = isPdf2HtmlEXAvailable();
 if (pdfToolCheck) {
   console.log('✓ pdf2htmlEX found - PDFs will be converted to HTML');
 } else {
-  console.log('⚠️  pdf2htmlEX not found - PDFs will be displayed as iframes');
-  console.log('To enable PDF-to-HTML conversion, install pdf2htmlEX:');
-  console.log(getPdf2HtmlEXInstallInstructions());
+  console.log('    pdf2htmlEX not found - PDFs will be displayed as iframes');
 }
 console.log('');
 
 
-// Function to parse summary files with tags
 function parseSummaryFile(filePath, expectedTags = ['CONTENT']) {
   if (!fs.existsSync(filePath)) return null;
   
@@ -37,7 +33,6 @@ function parseSummaryFile(filePath, expectedTags = ['CONTENT']) {
     if (match) {
       result[tag.toLowerCase()] = match[1].trim();
       
-      // Special handling for AUTHORS - split by commas/newlines
       if (tag === 'AUTHORS') {
         result.authors = result.authors
           .split(/[,\n]/)
@@ -50,65 +45,29 @@ function parseSummaryFile(filePath, expectedTags = ['CONTENT']) {
   return result;
 }
 
-// Function to check if a file is a PDF
 function isPDFFile(filename) {
   return filename.toLowerCase().endsWith('.pdf');
 }
 
-// Function to check if a PDF file is a base PDF (not a themed version)
-function isBasePDF(filename, allPdfFiles) {
-  if (!isPDFFile(filename)) return false;
+function ensureThemeDirectories(articleDir) {
+  const lightDir = path.join(articleDir, 'light');
+  const darkDir = path.join(articleDir, 'dark');
   
-  const baseName = path.basename(filename, '.pdf');
-  
-  // Skip if this is already a themed version
-  if (baseName.endsWith('-light') || baseName.endsWith('-dark')) {
-    return false;
+  if (!fs.existsSync(lightDir)) {
+    fs.mkdirSync(lightDir, { recursive: true });
   }
   
-  // This is a base PDF if there's no corresponding base version
-  // (i.e., if we have "article-light.pdf", we need to check if "article.pdf" exists)
-  return true;
+  if (!fs.existsSync(darkDir)) {
+    fs.mkdirSync(darkDir, { recursive: true });
+  }
+  
+  return { lightDir, darkDir };
 }
 
-// Function to find the primary PDF to process from a list of PDFs
-function findPrimaryPDFs(pdfFiles) {
-  const basePdfs = [];
-  const themedPdfs = new Set();
-  
-  // First, identify all themed PDFs
-  for (const pdfFile of pdfFiles) {
-    const baseName = path.basename(pdfFile, '.pdf');
-    if (baseName.endsWith('-light') || baseName.endsWith('-dark')) {
-      const baseFileName = baseName.replace(/-(?:light|dark)$/, '') + '.pdf';
-      themedPdfs.add(baseFileName);
-    }
-  }
-  
-  // Then, identify base PDFs that should be processed
-  for (const pdfFile of pdfFiles) {
-    const baseName = path.basename(pdfFile, '.pdf');
-    
-    // Skip themed versions
-    if (baseName.endsWith('-light') || baseName.endsWith('-dark')) {
-      continue;
-    }
-    
-    // If this base PDF doesn't have a corresponding base file, it should be processed
-    if (!themedPdfs.has(pdfFile)) {
-      basePdfs.push(pdfFile);
-    }
-  }
-  
-  return basePdfs;
-}
-
-// Function to check if a file is a thumbnail
 function isThumbnailFile(filename) {
   return /\.(png|jpg|jpeg|webp)$/i.test(filename);
 }
 
-// Make sure the branches directory exists
 if (!fs.existsSync(BRANCHES_DIR)) {
   console.error('Error: branches directory not found in static folder');
   process.exit(1);
@@ -124,11 +83,10 @@ function detectGhostscript() {
         'gs',
         'gswin64c', 
         'gswin32c',
-        'wsl gs',  // Try through WSL if on Windows
-        'wsl.exe gs'  // Alternative WSL syntax
+        'wsl gs',
+        'wsl.exe gs'
     ];
     
-    // Test each command
     for (const cmd of possibleCommands) {
         try {
             console.log(`    Trying: ${cmd}`);
@@ -140,13 +98,11 @@ function detectGhostscript() {
         }
     }
     
-    // Try common installation paths on Windows
     const commonPaths = [
         '/usr/bin/gs',
         '/usr/local/bin/gs'
     ];
     
-    // Windows paths with wildcard support
     const windowsPaths = [
         'C:\\Program Files\\gs\\gs*\\bin\\gswin64c.exe',
         'C:\\Program Files (x86)\\gs\\gs*\\bin\\gswin32c.exe'
@@ -155,7 +111,6 @@ function detectGhostscript() {
     for (const gsPath of [...commonPaths, ...windowsPaths]) {
         try {
             if (gsPath.includes('*')) {
-                // Handle wildcard paths for Windows
                 const baseDir = path.dirname(path.dirname(gsPath));
                 if (fs.existsSync(baseDir)) {
                     const versions = fs.readdirSync(baseDir).filter(dir => dir.startsWith('gs'));
@@ -172,35 +127,34 @@ function detectGhostscript() {
                 return gsPath;
             }
         } catch (error) {
-            // Continue searching
         }
     }
     
     console.log('  ⚠ Ghostscript not found in any location.');
-    console.log('  💡 If you have Ghostscript in WSL, make sure WSL is accessible from your current environment.');
-    console.log('  📦 Install with: apt install ghostscript (Linux) or download from https://www.ghostscript.com/');
+    console.log('     If you have Ghostscript in WSL, make sure WSL is accessible from your current environment.');
+    console.log('     Install with: apt install ghostscript (Linux) or download from https://www.ghostscript.com/');
     return null;
 }
 
 /**
- * Generates themed PDFs with modified background colors
+ * Generates themed PDFs with modified background colors in dedicated subdirectories
  */
-async function generateThemedPDFs(pdfPath, outputDir) {
+async function generateThemedPDFs(pdfPath, articleDir) {
     const gsCommand = detectGhostscript();
     if (!gsCommand) {
         return { lightPdf: null, darkPdf: null };
     }
     
+    const { lightDir, darkDir } = ensureThemeDirectories(articleDir);
     const baseName = path.basename(pdfPath, '.pdf');
-    const lightPdfPath = path.join(outputDir, `${baseName}-light.pdf`);
-    const darkPdfPath = path.join(outputDir, `${baseName}-dark.pdf`);
+    const lightPdfPath = path.join(lightDir, `${baseName}.pdf`);
+    const darkPdfPath = path.join(darkDir, `${baseName}.pdf`);
     
     try {
-        // Always generate light themed PDF (clean white background)
         console.log(`  Generating light themed PDF: ${path.basename(lightPdfPath)}`);
         
         // Create PostScript file for light theme (clean white background)
-        const lightScriptPath = path.join(outputDir, `${baseName}-light.ps`);
+        const lightScriptPath = path.join(lightDir, `${baseName}.ps`);
         const lightScript = `%!PS-Adobe-3.0
 % Light theme - ensure clean white background
 <<
@@ -224,7 +178,6 @@ async function generateThemedPDFs(pdfPath, outputDir) {
         try {
             fs.writeFileSync(lightScriptPath, lightScript);
             
-            // Handle path conversion for WSL if needed
             let commandLightPdfPath = lightPdfPath;
             
             if (gsCommand.includes('wsl')) {
@@ -236,24 +189,21 @@ async function generateThemedPDFs(pdfPath, outputDir) {
             const lightResult = execSync(lightCommand, { encoding: 'utf8', stdio: 'pipe' });
             console.log(`    ✓ Light PDF created successfully`);
             
-            // Clean up the PostScript file
             fs.unlinkSync(lightScriptPath);
         } catch (error) {
             console.error(`    ✗ Light PDF failed: ${error.message}`);
             if (error.stderr) console.error(`    Stderr: ${error.stderr}`);
             
-            // Clean up the PostScript file even on error
             if (fs.existsSync(lightScriptPath)) {
                 fs.unlinkSync(lightScriptPath);
             }
             throw error;
         }
         
-        // Always generate dark themed PDF (dark background)
         console.log(`  Generating dark themed PDF: ${path.basename(darkPdfPath)}`);
         
         // Create PostScript file for dark theme
-        const darkScriptPath = path.join(outputDir, `${baseName}-dark.ps`);
+        const darkScriptPath = path.join(darkDir, `${baseName}.ps`);
         const darkScript = `%!PS-Adobe-3.0
 % Dark theme - dark background matching our CSS theme
 <<
@@ -275,7 +225,6 @@ async function generateThemedPDFs(pdfPath, outputDir) {
         try {
             fs.writeFileSync(darkScriptPath, darkScript);
             
-            // Handle path conversion for WSL if needed
             let commandDarkPdfPath = darkPdfPath;
             
             if (gsCommand.includes('wsl')) {
@@ -287,30 +236,29 @@ async function generateThemedPDFs(pdfPath, outputDir) {
             const darkResult = execSync(darkCommand, { encoding: 'utf8', stdio: 'pipe' });
             console.log(`    ✓ Dark PDF created successfully`);
             
-            // Clean up the PostScript file
             fs.unlinkSync(darkScriptPath);
         } catch (error) {
             console.error(`    ✗ Dark PDF failed: ${error.message}`);
             if (error.stderr) console.error(`    Stderr: ${error.stderr}`);
             
-            // Clean up the PostScript file even on error
             if (fs.existsSync(darkScriptPath)) {
                 fs.unlinkSync(darkScriptPath);
             }
             throw error;
         }
         
-        console.log(`  ✓ Created themed PDFs: ${path.basename(lightPdfPath)}, ${path.basename(darkPdfPath)}`);
+        console.log(`  ✓ Created themed PDFs in subdirectories`);
         
         return {
             lightPdf: lightPdfPath,
-            darkPdf: darkPdfPath
+            darkPdf: darkPdfPath,
+            lightDir,
+            darkDir
         };
         
     } catch (error) {
         console.error(`  ✗ Failed to generate themed PDFs: ${error.message}`);
         
-        // Clean up any partial files
         [lightPdfPath, darkPdfPath].forEach(file => {
             if (fs.existsSync(file)) {
                 try {
@@ -325,7 +273,6 @@ async function generateThemedPDFs(pdfPath, outputDir) {
     }
 }
 
-// Main processing function
 async function generateBranchData() {
   try {
     const branchDirs = fs.readdirSync(BRANCHES_DIR).filter(file => {
@@ -335,14 +282,12 @@ async function generateBranchData() {
 
     const branchesData = [];
 
-    // Process each branch directory
     for (const branchName of branchDirs) {
       console.log(`Processing branch: ${branchName}`);
       
       const branchDir = path.join(BRANCHES_DIR, branchName);
       const branchSummaryPath = path.join(branchDir, 'summary.txt');
       
-      // Parse branch summary
       const branchSummary = parseSummaryFile(branchSummaryPath, ['NAME', 'CONTENT']);
       if (!branchSummary) {
         console.log(`  ⚠ No summary.txt found for branch ${branchName}, skipping`);
@@ -389,59 +334,50 @@ async function generateBranchData() {
         continue;
       }
       
-      // Find PDF and thumbnail
-      const articleFiles = fs.readdirSync(articleDir);
-      const allPdfFiles = articleFiles.filter(isPDFFile);
+      const articleFiles = fs.readdirSync(articleDir).filter(file => {
+        const filePath = path.join(articleDir, file);
+        return fs.statSync(filePath).isFile();
+      });
+      
+      const pdfFiles = articleFiles.filter(isPDFFile);
       const thumbnailFiles = articleFiles.filter(isThumbnailFile);
       
-      if (allPdfFiles.length === 0) {
+      if (pdfFiles.length === 0) {
         console.log(`      ⚠ No PDF found for article ${articleName}, skipping`);
         continue;
       }
       
-      // Find primary PDFs to process (avoiding duplicate processing)
-      const primaryPdfs = findPrimaryPDFs(allPdfFiles);
+      const pdfFile = pdfFiles[0];
+      const thumbnailFile = thumbnailFiles[0];
       
-      if (primaryPdfs.length === 0) {
-        console.log(`      ⚠ No processable PDF found for article ${articleName} (only themed versions exist), skipping`);
-        continue;
-      }
+      console.log(`          Processing PDF: ${pdfFile}`);
       
-      const pdfFile = primaryPdfs[0]; // Take first primary PDF
-      const thumbnailFile = thumbnailFiles[0]; // Take first thumbnail
-      
-      console.log(`      📄 Processing PDF: ${pdfFile} (${allPdfFiles.length} total PDFs found, ${primaryPdfs.length} primary)`);
-      
-      // Generate themed PDFs for better UI integration
       const pdfFullPath = path.join(articleDir, pdfFile);
-      console.log(`      🎨 Generating themed PDFs for: ${pdfFile}`);
+      console.log(`         Generating themed PDFs for: ${pdfFile}`);
       const themedPdfs = await generateThemedPDFs(pdfFullPath, articleDir);
       
       const baseName = path.basename(pdfFile, '.pdf');
       const basePath = `/branches/${branchName}/${articleName}/${baseName}`;
       
       const article = {
-        title: articleSummary.content.split('\n')[0].replace(/^#\s*/, ''), // First line as title
+        title: articleSummary.content.split('\n')[0].replace(/^#\s*/, ''), 
         slug: articleName,
         route: `/branches/${branchName}/${articleName}`,
         authors: articleSummary.authors || [],
         abstract: articleSummary.content,
-        basePath: basePath, // Base path for deriving themed versions
+        basePath: basePath,
         thumbnailPath: thumbnailFile ? `/branches/${branchName}/${articleName}/${thumbnailFile}` : null,
-        hasHtml: false // Will be set to true if HTML conversion succeeds
+        hasHtml: false
       };
       
-      // Convert themed PDFs to HTML
-      const htmlOutputDir = articleDir;
       let htmlConversionSuccess = false;
       
       try {
-        console.log(`      📄 Attempting themed PDF to HTML conversions`);
+        console.log(`         Attempting themed PDF to HTML conversions`);
         
-        // Convert light PDF to HTML if it exists
         if (themedPdfs.lightPdf && fs.existsSync(themedPdfs.lightPdf)) {
-          console.log(`      🌅 Converting light PDF: ${path.basename(themedPdfs.lightPdf)}`);
-          const lightHtmlPath = await convertPDFToHTML(themedPdfs.lightPdf, htmlOutputDir);
+          console.log(`          Converting light PDF: ${path.basename(themedPdfs.lightPdf)}`);
+          const lightHtmlPath = await convertPDFToHTML(themedPdfs.lightPdf, themedPdfs.lightDir);
           
           if (lightHtmlPath) {
             await postProcessHTML(lightHtmlPath, article.title, article.authors);
@@ -450,10 +386,9 @@ async function generateBranchData() {
           }
         }
         
-        // Convert dark PDF to HTML if it exists
         if (themedPdfs.darkPdf && fs.existsSync(themedPdfs.darkPdf)) {
-          console.log(`      🌙 Converting dark PDF: ${path.basename(themedPdfs.darkPdf)}`);
-          const darkHtmlPath = await convertPDFToHTML(themedPdfs.darkPdf, htmlOutputDir);
+          console.log(`          Converting dark PDF: ${path.basename(themedPdfs.darkPdf)}`);
+          const darkHtmlPath = await convertPDFToHTML(themedPdfs.darkPdf, themedPdfs.darkDir);
           
           if (darkHtmlPath) {
             await postProcessHTML(darkHtmlPath, article.title, article.authors);
@@ -477,7 +412,6 @@ async function generateBranchData() {
       console.log(`      ✓ Added article: "${article.title}" by ${article.authors.join(', ') || 'Unknown authors'}`);
     }
     
-    // Update branch statistics
     branch.articleCount = branch.articles.length;
     branch.recentArticles = branch.articles.slice(-3).reverse(); // Last 3 articles, most recent first
     
@@ -485,7 +419,6 @@ async function generateBranchData() {
     console.log(`  ✓ Branch completed: ${branch.articles.length} articles`);
   }
 
-  // Write the processed data to the output file
   fs.writeFileSync(
     OUTPUT_FILE, 
     `// Auto-generated file - DO NOT EDIT
@@ -503,5 +436,4 @@ export default ${JSON.stringify(branchesData, null, 2)};`
   }
 }
 
-// Run the main function
 generateBranchData();

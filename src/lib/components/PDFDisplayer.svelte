@@ -1,4 +1,5 @@
 <script lang="ts">
+	// DEPRECATED: May keep for future use, but currently article pdfs are converted to HTML for dynamic rendering
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 
@@ -21,7 +22,6 @@
 			loading = true;
 			error = false;
 
-			// Create iframe with custom styling
 			const iframe = document.createElement('iframe');
 			iframe.src = pdfPath;
 			iframe.style.width = '100%';
@@ -29,16 +29,15 @@
 			iframe.style.border = 'none';
 			iframe.style.borderRadius = '8px';
 			iframe.style.backgroundColor = 'white';
-			iframe.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
+			iframe.style.boxShadow =
+				'0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
 
 			iframe.onload = () => {
 				loading = false;
-				
-				// Try to apply custom styling to PDF viewer
+
 				try {
 					const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
 					if (iframeDoc) {
-						// Create custom CSS for PDF viewer
 						const style = iframeDoc.createElement('style');
 						style.textContent = `
 							body {
@@ -79,7 +78,6 @@
 						iframeDoc.head.appendChild(style);
 					}
 				} catch (e) {
-					// Cross-origin restrictions prevent styling - that's okay
 					console.log('PDF viewer styling limited due to cross-origin restrictions');
 				}
 			};
@@ -89,10 +87,8 @@
 				error = true;
 			};
 
-			// Clear container and add iframe
 			pdfContainer.innerHTML = '';
 			pdfContainer.appendChild(iframe);
-
 		} catch (err) {
 			console.error('Error loading PDF:', err);
 			loading = false;
@@ -105,10 +101,10 @@
 	{#if title || authors.length > 0}
 		<div class="pdf-header">
 			{#if title}
-				<h1 class="text-3xl font-bold text-gray-900 mb-2">{title}</h1>
+				<h1 class="mb-2 text-3xl font-bold text-gray-900">{title}</h1>
 			{/if}
 			{#if authors.length > 0}
-				<p class="text-lg text-gray-600 mb-4">
+				<p class="mb-4 text-lg text-gray-600">
 					by {authors.join(', ')}
 				</p>
 			{/if}
@@ -118,27 +114,37 @@
 	<div class="pdf-wrapper">
 		{#if loading}
 			<div class="loading-container">
-				<div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+				<div class="h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
 				<p class="mt-4 text-gray-600">Loading PDF...</p>
 			</div>
 		{/if}
 
 		{#if error}
 			<div class="error-container">
-				<div class="text-red-600 text-center">
-					<svg class="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+				<div class="text-center text-red-600">
+					<svg class="mx-auto mb-4 h-16 w-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+						></path>
 					</svg>
-					<h3 class="text-xl font-semibold mb-2">Unable to Load PDF</h3>
-					<p class="text-gray-600 mb-4">The PDF file could not be displayed.</p>
-					<a 
-						href={pdfPath} 
-						target="_blank" 
+					<h3 class="mb-2 text-xl font-semibold">Unable to Load PDF</h3>
+					<p class="mb-4 text-gray-600">The PDF file could not be displayed.</p>
+					<a
+						href={pdfPath}
+						target="_blank"
 						rel="noopener noreferrer"
-						class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+						class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
 					>
-						<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+						<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+							></path>
 						</svg>
 						Download PDF
 					</a>
@@ -146,21 +152,23 @@
 			</div>
 		{/if}
 
-		<div bind:this={pdfContainer} class="pdf-container" class:hidden={loading || error}>
-			<!-- PDF iframe will be inserted here -->
-		</div>
+		<div bind:this={pdfContainer} class="pdf-container" class:hidden={loading || error}></div>
 	</div>
 
-	<!-- Download link -->
 	<div class="mt-6 text-center">
-		<a 
-			href={pdfPath} 
-			target="_blank" 
+		<a
+			href={pdfPath}
+			target="_blank"
 			rel="noopener noreferrer"
-			class="inline-flex items-center px-4 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:border-gray-400 transition-colors"
+			class="inline-flex items-center rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 transition-colors hover:border-gray-400 hover:text-gray-800"
 		>
-			<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+			<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					stroke-width="2"
+					d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+				></path>
 			</svg>
 			Open in New Tab
 		</a>
@@ -184,7 +192,9 @@
 		background-color: #f8fafc;
 		border-radius: 12px;
 		padding: 1rem;
-		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+		box-shadow:
+			0 4px 6px -1px rgba(0, 0, 0, 0.1),
+			0 2px 4px -1px rgba(0, 0, 0, 0.06);
 	}
 
 	.loading-container,
@@ -205,7 +215,6 @@
 		display: none;
 	}
 
-	/* Custom scrollbar for better theming */
 	.pdf-container :global(iframe) {
 		scrollbar-width: thin;
 		scrollbar-color: #cbd5e1 #f1f5f9;

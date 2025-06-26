@@ -24,7 +24,6 @@
 			try {
 				contentContainer.innerHTML = htmlContent;
 				
-				// Apply consistent styling to all page elements
 				const pages = contentContainer.querySelectorAll('.pf');
 				pages.forEach((page, index) => {
 					page.classList.add('pdf-page');
@@ -65,7 +64,6 @@
 			
 			const fetchedHtml = await response.text();
 			
-			// Extract and clean the page container content
 			let contentToInsert = '';
 			const pageContainerMatch = fetchedHtml.match(/<div id="page-container"[^>]*>([\s\S]*?)<\/div>\s*<\/body>/i);
 			
@@ -157,7 +155,6 @@
 		{/if}
 
 		{#if useHtml && article.htmlPath}
-			<!-- PDF-to-HTML content display -->
 			<div 
 				bind:this={contentContainer}
 				class="html-content-container"
@@ -189,14 +186,12 @@
 </div>
 
 <style>
-	/* Streamlined styling for embedded article content */
 	:global(.html-content-container) {
 		background: transparent;
 		max-width: 800px;
 		margin: 0 auto;
 	}
 
-	/* PDF page styling for component use */
 	:global(.html-content-container .pf) {
 		background: white !important;
 		border-radius: 8px !important;
@@ -214,7 +209,6 @@
 		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
 	}
 
-	/* Text elements */
 	:global(.html-content-container .t) {
 		position: absolute !important;
 		white-space: pre !important;
@@ -225,26 +219,22 @@
 		line-height: 1.2 !important;
 	}
 
-	/* Background images */
 	:global(.html-content-container .bi) {
 		position: absolute !important;
 		z-index: 1 !important;
 		border-radius: 4px !important;
 	}
 
-	/* Page containers */
 	:global(.html-content-container .pc) {
 		position: relative !important;
 		overflow: hidden !important;
 	}
 
-	/* Hide unwanted elements */
 	:global(.html-content-container #sidebar),
 	:global(.html-content-container .article-header) {
 		display: none !important;
 	}
 
-	/* Responsive adjustments */
 	@media (max-width: 768px) {
 		:global(.html-content-container) {
 			max-width: 100%;
@@ -257,7 +247,6 @@
 		}
 	}
 
-	/* Text selection */
 	:global(.html-content-container .t::selection) {
 		background: rgba(59, 130, 246, 0.3) !important;
 	}

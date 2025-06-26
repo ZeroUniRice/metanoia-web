@@ -1,5 +1,6 @@
 <!-- Paper Thumbnail Component for IEEE Papers -->
 <script lang="ts">
+	// DEPRECATED: Paper rendering is now done using HTML from pdf2htmlex for better dynamic rendering rather than extracting from PDF directly
 	import type { IEEEPaper } from '$lib/types.js';
 	import { base } from '$app/paths';
 
@@ -25,7 +26,6 @@
 	}
 
 	function getPaperUrl(): string {
-		// Generate URL based on paper title (you might want to use a unique ID instead)
 		const paperSlug = paper.title.toLowerCase()
 			.replace(/[^a-z0-9\s]/g, '')
 			.replace(/\s+/g, '-')
@@ -33,7 +33,6 @@
 		return `${base}/papers/${paperSlug}`;
 	}
 
-	// Size configurations
 	const sizeClasses = {
 		small: {
 			container: 'p-4',

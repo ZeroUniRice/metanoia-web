@@ -5,13 +5,11 @@ import branchData from '$lib/branchData.js';
 export function load({ params }) {
 	const { slug, article } = params;
 	
-	// Find the branch
 	const branch = branchData.find(b => b.slug === slug);
 	if (!branch) {
 		throw error(404, 'Branch not found');
 	}
 	
-	// Find the article
 	const articleData = branch.articles.find(a => a.slug === article);
 	if (!articleData) {
 		throw error(404, 'Article not found');
@@ -39,5 +37,4 @@ export function entries() {
 	return routes;
 }
 
-// Enable prerendering for this route
 export const prerender = true;

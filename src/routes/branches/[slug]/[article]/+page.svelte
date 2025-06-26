@@ -98,11 +98,14 @@
 				`src="${base}${imageDir}/$1"`
 			);
 			// Replace relative font paths (.woff) in the font styles
-			// Has the format src:url([fontname.woff])
 			parsedFontStyles = parsedFontStyles.replace(
 				/url\(([^)]+\.woff)\)/g,
 				`url("${base}${imageDir}/$1")`
 			);
+			// Remove font-size:1px; from the styles due to weird rendering issues
+			layoutStyles = layoutStyles.replace(/font-size:\s*1px;/g, '');
+
+			console.log(layoutStyles)
 
 			fontStyles = parsedFontStyles;
 			htmlContent = layoutStyles + pageContainerContent;
@@ -171,7 +174,6 @@
 	{/if}
 </svelte:head>
 
-<!-- Navigation breadcrumb -->
 <nav class="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
 	<div class="container mx-auto max-w-6xl px-6 py-4">
 		<div class="flex items-center space-x-2 text-sm">
@@ -196,7 +198,6 @@
 	</div>
 </nav>
 
-<!-- Article header integrated into the page flow -->
 <div class="bg-gradient-to-r from-primary-light to-primary-default text-white">
 	<div class="container mx-auto max-w-6xl px-6 py-12">
 		<div class="max-w-4xl">
@@ -231,7 +232,6 @@
 	</div>
 </div>
 
-<!-- Main article content area -->
 <div class="bg-neutral-light dark:bg-dark-bg">
 	<div class="container mx-auto max-w-6xl px-6 py-8">
 		{#if loading}
@@ -261,15 +261,12 @@
 				</div>
 			</div>
 		{:else}
-			<!-- Article content integrated seamlessly into page -->
 			{#if useHtml && data.article.hasHtml}
-				<!-- PDF-to-HTML content display -->
 				<div 
 					bind:this={contentContainer}
 					class="article-content-wrapper"
 				></div>
 			{:else}
-				<!-- PDF fallback with better integration -->
 				<div class="max-w-4xl mx-auto">
 					<div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-6 mb-8">
 						<div class="flex items-center gap-3">
@@ -357,7 +354,7 @@
 		}
 		
 		:global(.article-content-wrapper .pf) {
-			padding: 1.5rem !important;
+			/* padding: 1.5rem !important; */
 			margin-bottom: 2rem !important;
 			border-radius: 8px !important;
 		}
@@ -370,7 +367,7 @@
 
 	@media (max-width: 480px) {
 		:global(.article-content-wrapper .pf) {
-			padding: 1rem !important;
+			/* padding: 1rem !important; */
 			margin-bottom: 1.5rem !important;
 		}
 	}
