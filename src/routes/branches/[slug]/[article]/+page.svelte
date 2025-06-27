@@ -13,11 +13,10 @@
 	let fontStyles = $state('');
 	let htmlContent = $state('');
 
-	let currentTheme = $state('light');
+	let currentTheme = $state('dark');
 	let isArticleZoomed = $state(false);
 	let scrollY = $state(0);
 	let articleElement: HTMLDivElement | undefined = $state();
-	let isAutoScrolling = $state(false);
 	let dynamicBottomMargin = $state(0);
 
 	const ZOOM_THRESHOLD = 300;
@@ -25,14 +24,11 @@
 
 	onMount(() => {
 		const handleScroll = () => {
-			if (isAutoScrolling) return;
-
 			scrollY = window.scrollY;
 			const shouldZoom = scrollY > ZOOM_THRESHOLD;
 
 			if (shouldZoom && !isArticleZoomed) {
 				isArticleZoomed = true;
-				isAutoScrolling = true;
 
 				if (articleElement) {
 					const originalHeight = articleElement.scrollHeight;
@@ -47,22 +43,6 @@
 					const extraHeight = originalHeight * (scaleFactor - 1);
 					dynamicBottomMargin = extraHeight;
 				}
-
-				setTimeout(() => {
-					if (articleElement) {
-						const elementTop = articleElement.offsetTop;
-						const offset = 100;
-
-						window.scrollTo({
-							top: elementTop - offset,
-							behavior: 'smooth'
-						});
-
-						setTimeout(() => {
-							isAutoScrolling = false;
-						}, 800);
-					}
-				}, 300);
 			} else if (!shouldZoom && isArticleZoomed) {
 				isArticleZoomed = false;
 				dynamicBottomMargin = 0;
@@ -234,55 +214,55 @@
 	{/if}
 </svelte:head>
 
-<nav class="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
-	<div class="container mx-auto max-w-6xl px-6 py-4">
-		<div class="flex items-center space-x-2 text-sm">
+<nav class="border-b border-gray-200 bg-gray-100 dark:border-gray-700 dark:bg-gray-800">
+	<div class="w-full max-w-6xl mx-auto px-4 md:px-6 py-3 md:py-4">
+		<div class="flex items-center space-x-1 md:space-x-2 text-xs md:text-sm">
 			<a
 				href="{base}/branches"
-				class="text-primary-default hover:text-primary-dark dark:text-primary-light transition-colors dark:hover:text-white"
+				class="text-primary hover:text-primary-dark dark:text-primary-light transition-colors dark:hover:text-white"
 			>
 				Projects
 			</a>
 			<span class="text-gray-400 dark:text-gray-600">→</span>
 			<a
 				href="{base}/branches/{data.branch.slug}"
-				class="text-primary-default hover:text-primary-dark dark:text-primary-light transition-colors dark:hover:text-white"
+				class="text-primary hover:text-primary-dark dark:text-primary-light transition-colors dark:hover:text-white truncate max-w-24 md:max-w-none"
 			>
 				{data.branch.name}
 			</a>
 			<span class="text-gray-400 dark:text-gray-600">→</span>
-			<span class="font-medium text-gray-700 dark:text-gray-300">
+			<span class="font-medium text-gray-700 dark:text-gray-300 truncate">
 				{data.article.title}
 			</span>
 		</div>
 	</div>
 </nav>
 
-<div class="from-primary-light to-primary-default bg-gradient-to-r text-white">
-	<div class="container mx-auto max-w-6xl px-6 py-12">
+<div class="bg-gradient-to-r from-honeydew to-secondary-light dark:from-primary-light dark:to-primary-dark dark:text-white">
+	<div class="w-full max-w-6xl mx-auto px-4 md:px-6 py-8 md:py-12">
 		<div class="max-w-4xl">
-			<h1 class="mb-4 text-4xl font-bold">
+			<h1 class="mb-3 md:mb-4 text-2xl md:text-4xl font-bold leading-tight">
 				{data.article.title}
 			</h1>
 			{#if data.article.authors.length > 0}
-				<p class="mb-4 text-xl opacity-90">
+				<p class="mb-3 md:mb-4 text-lg md:text-xl opacity-90">
 					By {data.article.authors.join(', ')}
 				</p>
 			{/if}
 			{#if data.article.abstract}
-				<p class="mb-6 max-w-3xl text-lg leading-relaxed opacity-90">
+				<p class="mb-4 md:mb-6 max-w-3xl text-base md:text-lg leading-relaxed opacity-90">
 					{@html parseMarkdown(data.article.abstract)}
 				</p>
 			{/if}
-			<div class="flex items-center justify-between">
-				<div class="text-sm opacity-75">
+			<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+				<div class="text-xs md:text-sm opacity-75">
 					Part of <strong>{data.branch.name}</strong> research branch
 				</div>
 				<button
 					onclick={downloadPDF}
-					class="flex items-center gap-2 rounded-lg border border-white/20 bg-white/20 px-6 py-3 backdrop-blur-sm transition-colors hover:bg-white/30"
+					class="flex items-center justify-center md:justify-start gap-2 rounded-lg border border-white/20 bg-white/20 px-4 md:px-6 py-2 md:py-3 backdrop-blur-sm transition-colors hover:bg-white/30 text-sm md:text-base"
 				>
-					<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<svg class="size-4 md:size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path
 							stroke-linecap="round"
 							stroke-linejoin="round"
@@ -298,23 +278,23 @@
 </div>
 
 <div class="bg-neutral-light dark:bg-dark-bg">
-	<div class="container mx-auto max-w-6xl px-6 py-8">
+	<div class="w-full max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-8">
 		{#if loading}
-			<div class="flex items-center justify-center py-24">
+			<div class="flex items-center justify-center py-16 md:py-24">
 				<div class="text-center">
 					<div
-						class="border-primary-default mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2"
+						class="mx-auto mb-4 size-8 md:size-12 animate-spin rounded-full border-b-2 border-primary"
 					></div>
-					<span class="text-gray-600 dark:text-gray-400">Loading article...</span>
+					<span class="text-sm md:text-base text-gray-600 dark:text-gray-400">Loading article...</span>
 				</div>
 			</div>
 		{:else if error}
-			<div class="mx-auto max-w-2xl py-12">
+			<div class="mx-auto max-w-2xl py-8 md:py-12">
 				<div
-					class="rounded-lg border border-red-200 bg-red-50 p-8 text-center dark:border-red-800 dark:bg-red-900/20"
+					class="rounded-lg border border-red-200 bg-red-50 p-6 md:p-8 text-center dark:border-red-800 dark:bg-red-900/20"
 				>
 					<svg
-						class="mx-auto mb-4 h-12 w-12 text-red-500"
+						class="mx-auto mb-4 size-8 md:size-12 text-red-500"
 						fill="none"
 						stroke="currentColor"
 						viewBox="0 0 24 24"
@@ -326,17 +306,17 @@
 							d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
 						/>
 					</svg>
-					<h2 class="mb-3 text-xl font-semibold text-red-800 dark:text-red-200">
+					<h2 class="mb-3 text-lg md:text-xl font-semibold text-red-800 dark:text-red-200">
 						Failed to Load Article
 					</h2>
-					<p class="mb-6 text-red-600 dark:text-red-400">
+					<p class="mb-4 md:mb-6 text-sm md:text-base text-red-600 dark:text-red-400">
 						The article content could not be loaded. Please try downloading the PDF instead.
 					</p>
 					<button
 						onclick={downloadPDF}
-						class="inline-flex items-center gap-2 rounded-lg bg-red-600 px-6 py-3 text-white transition-colors hover:bg-red-700"
+						class="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 md:px-6 py-2 md:py-3 text-sm md:text-base text-white transition-colors hover:bg-red-700"
 					>
-						<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<svg class="size-4 md:size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path
 								stroke-linecap="round"
 								stroke-linejoin="round"
@@ -367,11 +347,11 @@
 				<div class="article-scroll-wrapper">
 					<div class="mx-auto max-w-4xl">
 						<div
-							class="mb-8 rounded-lg border border-amber-200 bg-amber-50 p-6 dark:border-amber-800 dark:bg-amber-900/20"
+							class="mb-6 md:mb-8 rounded-lg border border-amber-200 bg-amber-50 p-4 md:p-6 dark:border-amber-800 dark:bg-amber-900/20"
 						>
 							<div class="flex items-center gap-3">
 								<svg
-									class="h-6 w-6 flex-shrink-0 text-amber-600 dark:text-amber-400"
+									class="size-5 md:size-6 flex-shrink-0 text-amber-600 dark:text-amber-400"
 									fill="none"
 									stroke="currentColor"
 									viewBox="0 0 24 24"
@@ -384,8 +364,8 @@
 									/>
 								</svg>
 								<div>
-									<p class="font-medium text-amber-800 dark:text-amber-200">PDF Display Mode</p>
-									<p class="text-sm text-amber-700 dark:text-amber-300">
+									<p class="font-medium text-sm md:text-base text-amber-800 dark:text-amber-200">PDF Display Mode</p>
+									<p class="text-xs md:text-sm text-amber-700 dark:text-amber-300">
 										Viewing the original PDF document
 									</p>
 								</div>
@@ -397,8 +377,7 @@
 						>
 							<iframe
 								src="{base}{getThemedPdfPath()}"
-								class="w-full border-0"
-								style="height: 800px;"
+								class="w-full border-0 h-96 md:h-[800px]"
 								title="PDF Viewer for {data.article.title}"
 							></iframe>
 						</div>
@@ -426,7 +405,7 @@
 	.article-scroll-wrapper {
 		width: 100%;
 		overflow-x: auto;
-		overflow-y: visible;
+		overflow-y: auto;
 		scrollbar-width: none;
 		-ms-overflow-style: none;
 	}
@@ -484,23 +463,62 @@
 		overflow: hidden !important;
 	}
 
+	/* Mobile-first responsive design */
 	@media (max-width: 768px) {
 		.article-container.zoomed {
 			transform: scale(1.1);
 		}
 
+		.article-scroll-wrapper {
+			overflow-x: auto;
+			overflow-y: auto;
+			max-height: 70vh;
+			scrollbar-width: thin;
+			-ms-overflow-style: auto;
+		}
+
+		.article-scroll-wrapper::-webkit-scrollbar {
+			display: block;
+			width: 8px;
+			height: 8px;
+		}
+
+		.article-scroll-wrapper::-webkit-scrollbar-track {
+			background: #f1f1f1;
+			border-radius: 4px;
+		}
+
+		.article-scroll-wrapper::-webkit-scrollbar-thumb {
+			background: #888;
+			border-radius: 4px;
+		}
+
+		.article-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+			background: #555;
+		}
+
+		.article-scroll-wrapper::-webkit-scrollbar-corner {
+			background: #f1f1f1;
+		}
+
 		:global(.article-content-wrapper) {
-			min-width: 800px;
+			min-width: 900px;
+			max-width: 900px;
+			margin: 0 auto;
 			padding: 0 1rem;
 		}
 
 		:global(.article-content-wrapper .pf) {
 			margin-bottom: 2rem !important;
 			border-radius: 8px !important;
+			transform: none !important;
+			width: auto !important;
+			max-width: none !important;
 		}
 
 		:global(.article-content-wrapper .pc) {
 			transform-origin: top left;
+			width: auto !important;
 		}
 	}
 
@@ -509,12 +527,31 @@
 			transform: scale(1.05);
 		}
 
+		.article-scroll-wrapper {
+			max-height: 60vh;
+		}
+
 		:global(.article-content-wrapper) {
-			min-width: 700px;
+			min-width: 800px;
+			padding: 0 0.5rem;
 		}
 
 		:global(.article-content-wrapper .pf) {
 			margin-bottom: 1.5rem !important;
+		}
+	}
+
+	/* Desktop styles remain the same */
+	@media (min-width: 769px) {
+		:global(.article-content-wrapper) {
+			max-width: 900px;
+			margin: 0 auto;
+			min-width: 900px;
+		}
+
+		.article-scroll-wrapper {
+			overflow-x: auto;
+			overflow-y: visible;
 		}
 	}
 
