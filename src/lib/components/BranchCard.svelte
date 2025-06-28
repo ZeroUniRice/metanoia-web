@@ -24,7 +24,7 @@
 	>
 		{#if branch.bannerImage}
 			<img
-				src="{branch.bannerImage}"
+				src="{base}{branch.bannerImage}"
 				alt="{branch.name} Banner"
 				class="absolute inset-0 h-full w-full object-cover dark:brightness-70"
 			/>
