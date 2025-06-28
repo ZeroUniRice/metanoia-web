@@ -62,31 +62,25 @@
 					{#each branch.recentArticles as article}
 						<a
 							href="{base}/branches/{branch.slug}/{article.slug}"
-							class="block cursor-pointer size-48 md:size-96 overflow-hidden rounded-lg border border-gray-200 text-left shadow-md transition-shadow hover:shadow-lg dark:border-gray-700 bg-secondary-light dark:bg-gray-800"
+							class="group block relative cursor-pointer size-48 md:size-96 overflow-hidden rounded-lg border border-gray-200 text-left shadow-md transition-shadow hover:shadow-lg dark:border-gray-700 bg-secondary-light dark:bg-gray-800"
 						>
 							{#if article.thumbnailPath}
 								<img
 									src="{base}{article.thumbnailPath}"
 									alt="Thumbnail for {article.title}"
-									class="h-0 md:h-48 w-full object-cover"
+									class="absolute inset-0 w-full h-full object-fill p-1 rounded-lg blur-xs transition delay-50 duration-300 ease-in-out group-hover:blur-none dark:brightness-20 dark:group-hover:brightness-60"
 								/>
-							{:else}
-								<div
-									class="flex h-48 w-full items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600"
-								>
-									<span class="text-4xl text-gray-500 dark:text-gray-400">📄</span>
-								</div>
 							{/if}
-							<div class="p-4">
+							<div class="p-4 md:my-8 z-3 relative overflow-clip">
 								<h3 class="mb-2 line-clamp-2 text-md md:text-lg font-semibold text-gray-900 dark:text-white">
 									{article.title}
 								</h3>
 								{#if article.authors.length > 0}
-									<p class="mb-2 text-sm text-gray-600 dark:text-gray-400">
+									<p class="mb-2 text-sm text-gray-600 dark:text-gray-400 transition delay-50 duration-300 ease-in-out group-hover:opacity-10">
 										By {article.authors.join(', ')}
 									</p>
 								{/if}
-								<p class="line-clamp-4 md:line-clamp-3 text-xs md:text-sm text-gray-700 dark:text-gray-300">
+								<p class="line-clamp-4 md:line-clamp-3 text-xs md:text-sm text-gray-700 dark:text-gray-300 transition delay-50 duration-300 ease-in-out group-hover:opacity-10">
 									{@html parseMarkdown(article.abstract || 'No abstract available.')}
 								</p>
 							</div>
@@ -102,3 +96,9 @@
 		{/if}
 	</section>
 </div>
+
+<style>
+	:global(.clear) {
+		filter: brightness(60%);
+	}
+</style>

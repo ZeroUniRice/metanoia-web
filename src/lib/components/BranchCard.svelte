@@ -20,13 +20,13 @@
 
 {#if banner}
 	<div
-		class="relative h-fit overflow-hidden md:rounded-sm border border-gray-200 shadow-md dark:border-gray-700 md:mask-[linear-gradient(to_right,transparent,black_3%,black_97%,transparent)]"
+		class="relative h-fit overflow-clip md:rounded-sm border border-gray-200 shadow-md dark:border-gray-700 md:mask-[linear-gradient(to_right,transparent,black_3%,black_97%,transparent)]"
 	>
 		{#if branch.bannerImage}
 			<img
 				src="{base}{branch.bannerImage}"
 				alt="{branch.name} Banner"
-				class="absolute inset-0 h-full w-full object-cover dark:brightness-70"
+				class="absolute inset-0 h-full w-full object-cover dark:brightness-70 opacity-90"
 			/>
 		{:else}
 			<div
