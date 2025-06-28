@@ -463,7 +463,6 @@
 		overflow: hidden !important;
 	}
 
-	/* Mobile-first responsive design */
 	@media (max-width: 768px) {
 		.article-container.zoomed {
 			transform: scale(1.1);
@@ -541,7 +540,6 @@
 		}
 	}
 
-	/* Desktop styles remain the same */
 	@media (min-width: 769px) {
 		:global(.article-content-wrapper) {
 			max-width: 900px;

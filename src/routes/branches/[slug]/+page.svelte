@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
-	import { parseMarkdown } from '$lib/markdown.js';	import { getBranchBySlug } from '$lib/branches.js';
+	import { parseMarkdown } from '$lib/markdown.js';
+	import { getBranchBySlug } from '$lib/branches.js';
 	import { base } from '$app/paths';
 	import type { Branch } from '$lib/types.js';
 
@@ -33,9 +34,9 @@
 	<meta name="description" content="Details about {branch?.name || 'research branch'}" />
 </svelte:head>
 
-<div class="container mx-auto max-w-6xl py-8 px-6">
+<div class="container mx-auto max-w-6xl px-6 py-8">
 	<nav class="mb-8">
-		<a 
+		<a
 			href="{base}/branches"
 			class="text-primary-default hover:text-primary-dark dark:text-primary-light dark:hover:text-white"
 		>
@@ -44,19 +45,20 @@
 	</nav>
 
 	{#if loading}
-		<div class="text-center text-gray-500 dark:text-gray-400">
-			Loading branch content...
-		</div>
+		<div class="text-center text-gray-500 dark:text-gray-400">Loading branch content...</div>
 	{:else if branch}
 		<!-- Branch Header with CSS Banner -->
-		<div 
-			class="h-48 mb-8 rounded-lg relative flex items-center justify-center text-white"
+		<div
+			class="relative mb-8 flex h-48 items-center justify-center rounded-lg text-white"
 			style="background: {getBranchGradient(branch.name)}"
 		>
-			<div class="absolute inset-0 bg-black bg-opacity-30 rounded-lg"></div>
-			<div class="relative z-10 text-center px-6">
-				<h1 class="text-4xl font-bold mb-2">{branch.name}</h1>
-				<p class="text-xl opacity-90">{branch.articleCount} {branch.articleCount === 1 ? 'Article' : 'Articles'}</p>
+			<div class="absolute inset-0 rounded-lg bg-black opacity-30"></div>
+			<div class="relative z-10 px-6 text-center">
+				<h1 class="mb-2 text-4xl font-bold">{branch.name}</h1>
+				<p class="text-xl opacity-90">
+					{branch.articleCount}
+					{branch.articleCount === 1 ? 'Article' : 'Articles'}
+				</p>
 			</div>
 		</div>
 
@@ -70,35 +72,38 @@
 		<!-- Articles Section -->
 		{#if branch.articles.length > 0}
 			<section>
-				<h2 class="text-3xl font-bold mb-8 text-primary-dark dark:text-dark-text-header">
+				<h2 class="text-primary-dark dark:text-dark-text-header mb-8 text-3xl font-bold">
 					Research Articles
-				</h2>				<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+				</h2>
+				<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 					{#each branch.articles as article}
-						<a 
+						<a
 							href="{base}/branches/{branch.slug}/{article.slug}"
-							class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden border border-gray-200 dark:border-gray-700 cursor-pointer hover:shadow-lg transition-shadow text-left block"
+							class="block cursor-pointer overflow-hidden rounded-lg border border-gray-200 bg-white text-left shadow-md transition-shadow hover:shadow-lg dark:border-gray-700 dark:bg-gray-800"
 						>
 							{#if article.thumbnailPath}
-								<img 
-									src="{base}{article.thumbnailPath}" 
+								<img
+									src="{base}{article.thumbnailPath}"
 									alt="Thumbnail for {article.title}"
-									class="w-full h-48 object-cover"
+									class="h-48 w-full object-cover"
 								/>
 							{:else}
-								<div class="w-full h-48 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
-									<span class="text-gray-500 dark:text-gray-400 text-4xl">📄</span>
+								<div
+									class="flex h-48 w-full items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600"
+								>
+									<span class="text-4xl text-gray-500 dark:text-gray-400">📄</span>
 								</div>
 							{/if}
 							<div class="p-4">
-								<h3 class="text-lg font-semibold mb-2 text-gray-900 dark:text-white line-clamp-2">
+								<h3 class="mb-2 line-clamp-2 text-lg font-semibold text-gray-900 dark:text-white">
 									{article.title}
 								</h3>
 								{#if article.authors.length > 0}
-									<p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+									<p class="mb-2 text-sm text-gray-600 dark:text-gray-400">
 										By {article.authors.join(', ')}
 									</p>
 								{/if}
-								<p class="text-sm text-gray-700 dark:text-gray-300 line-clamp-3">
+								<p class="line-clamp-3 text-sm text-gray-700 dark:text-gray-300">
 									{@html parseMarkdown(article.abstract || 'No abstract available.')}
 								</p>
 							</div>
@@ -107,14 +112,16 @@
 				</div>
 			</section>
 		{:else}
-			<div class="text-center text-gray-500 dark:text-gray-400 mt-12">
+			<div class="mt-12 text-center text-gray-500 dark:text-gray-400">
 				<p class="text-lg">No articles available yet.</p>
-				<p class="text-sm mt-2">Articles will appear here as they are added to this research branch.</p>
+				<p class="mt-2 text-sm">
+					Articles will appear here as they are added to this research branch.
+				</p>
 			</div>
 		{/if}
 	{:else}
 		<div class="text-center text-red-500 dark:text-red-400">
-			<h1 class="text-2xl font-bold mb-4">Branch Not Found</h1>
+			<h1 class="mb-4 text-2xl font-bold">Branch Not Found</h1>
 			<p>The requested research branch could not be found.</p>
 		</div>
 	{/if}
@@ -128,7 +135,7 @@
 		-webkit-box-orient: vertical;
 		overflow: hidden;
 	}
-	
+
 	.line-clamp-3 {
 		display: -webkit-box;
 		-webkit-line-clamp: 3;
