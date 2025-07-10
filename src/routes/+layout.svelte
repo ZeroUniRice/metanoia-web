@@ -36,7 +36,7 @@
 	};
 </script>
 
-<div class="min-h-screen bg-neutral-light dark:bg-dark-bg text-gray-900 dark:text-dark-text flex flex-col">
+<div class="min-h-screen bg-[url(/geometric-background.png)] bg-cover bg-center bg-no-repeat bg-neutral-light dark:bg-dark-bg text-gray-900 dark:text-dark-text flex flex-col">
 	<header class="bg-slate-800 dark:bg-primary-dark shadow-md">
 		<nav class="w-full px-4 py-3 md:px-6 lg:px-12">
 			<div class="flex justify-between items-center">
@@ -106,7 +106,7 @@
 		</nav>
 	</header>
 
-	<main class="flex-grow p-3 md:p-6 pb-20 bg-neutral-light dark:bg-dark-bg w-full">
+	<main class="flex-grow p-3 md:p-6 pb-20w-full bg-neutral-light/80 dark:bg-dark-bg/80">
 		{@render children()}
 	</main>
 
