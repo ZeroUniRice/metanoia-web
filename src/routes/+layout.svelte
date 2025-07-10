@@ -106,7 +106,7 @@
 		</nav>
 	</header>
 
-	<main class="flex-grow p-3 md:p-6 pb-20w-full bg-neutral-light/80 dark:bg-dark-bg/80">
+	<main class="flex-grow p-3 md:p-6 pb-20w-full bg-neutral-light/80 dark:bg-dark-bg/90">
 		{@render children()}
 	</main>
 
