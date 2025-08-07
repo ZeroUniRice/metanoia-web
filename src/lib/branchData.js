@@ -20,7 +20,10 @@ export default [
         "abstract": "# Dotted Red Line Analysis: Automatic vs Manual Graph Extraction\r\nThis paper compares automatic and manual graph line value extraction methods. We analyze the strengths and weaknesses of each approach and evaluate their applicability to different types of datasets, providing insights into when automated extraction is preferable.",
         "basePath": "/branches/Glucose_Monitor/red_line/red-line",
         "thumbnailPath": "/branches/Glucose_Monitor/red_line/red-line.png",
-        "hasHtml": true
+        "hasHtml": true,
+        "publicationDate": "2025-06-23T07:31:26.893Z",
+        "branchName": "Monitoring Metabolism",
+        "branchSlug": "Glucose_Monitor"
       }
     ],
     "articleCount": 1,
@@ -35,7 +38,10 @@ export default [
         "abstract": "# Dotted Red Line Analysis: Automatic vs Manual Graph Extraction\r\nThis paper compares automatic and manual graph line value extraction methods. We analyze the strengths and weaknesses of each approach and evaluate their applicability to different types of datasets, providing insights into when automated extraction is preferable.",
         "basePath": "/branches/Glucose_Monitor/red_line/red-line",
         "thumbnailPath": "/branches/Glucose_Monitor/red_line/red-line.png",
-        "hasHtml": true
+        "hasHtml": true,
+        "publicationDate": "2025-06-23T07:31:26.893Z",
+        "branchName": "Monitoring Metabolism",
+        "branchSlug": "Glucose_Monitor"
       }
     ]
   },

@@ -10,11 +10,12 @@ export interface Article {
 	route: string;
 	authors: string[];
 	abstract: string;
-	pdfPath: string;
-	lightPdfPath?: string;
-	darkPdfPath?: string;
+	basePath: string;
 	thumbnailPath?: string;
-	htmlPath?: string;
+	hasHtml: boolean;
+	publicationDate: string;
+	branchName: string;
+	branchSlug: string;
 }
 
 export interface Branch {

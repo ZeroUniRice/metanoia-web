@@ -363,6 +363,8 @@ async function generateBranchData() {
       const baseName = path.basename(pdfFile, '.pdf');
       const basePath = `/branches/${branchName}/${articleName}/${baseName}`;
       
+      const pdfStats = fs.statSync(pdfFullPath);
+      
       const article = {
         title: articleSummary.content.split('\n')[0].replace(/^#\s*/, ''), 
         slug: articleName,
@@ -371,7 +373,10 @@ async function generateBranchData() {
         abstract: articleSummary.content,
         basePath: basePath,
         thumbnailPath: thumbnailFile ? `/branches/${branchName}/${articleName}/${thumbnailFile}` : null,
-        hasHtml: false
+        hasHtml: false,
+        publicationDate: pdfStats.mtime.toISOString(),
+        branchName: branch.name,
+        branchSlug: branch.slug
       };
       
       let htmlConversionSuccess = false;

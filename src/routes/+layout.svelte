@@ -59,7 +59,7 @@
 						Projects
 					</a>
 					<a
-						href="{base}/pdf-demo"
+						href="{base}/papers"
 						class="px-2 py-2 md:px-3 rounded-md text-xs sm:text-sm font-medium text-white hover:bg-primary-default dark:hover:bg-primary-dark"
 					>
 						Papers
