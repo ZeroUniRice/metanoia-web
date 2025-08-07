@@ -47,34 +47,57 @@
 		</div>
 	</div>
 {:else}
-	<div
-		class="flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md dark:border-gray-700 dark:bg-gray-800"
+	<a
+		href="{base}{branch.route}"
+		class="group block rounded-lg bg-white dark:bg-gray-800 shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out border border-gray-200 dark:border-gray-700 overflow-hidden"
 	>
-		<div
-			class="relative flex h-32 items-center justify-center text-xl font-bold"
-			style="background: {getBranchGradient(branch.name)}"
-		>
-			<div class="absolute inset-0"></div>
-			<h3 class="text-light-text relative z-10 px-4 text-center">{branch.name}</h3>
+		<div class="relative h-48 w-full overflow-hidden">
+			{#if branch.standardImage}
+				<img
+					src="{base}{branch.standardImage}"
+					alt="Thumbnail for {branch.name}"
+					class="h-full w-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105"
+				/>
+			{:else}
+				<div
+					class="h-full w-full flex items-center justify-center"
+					style="background: {getBranchGradient(branch.name)}"
+				>
+					<h3 class="text-2xl font-bold text-white text-center px-4 drop-shadow-md">
+						{branch.name}
+					</h3>
+				</div>
+			{/if}
+			<div
+				class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"
+			></div>
 		</div>
-
-		<div class="flex flex-1 flex-col p-6">
-			<div class="prose dark:prose-invert dark:text-honeydew mb-4 max-w-none flex-1">
+		<div class="p-6">
+			<h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2 truncate">
+				{branch.name}
+			</h3>
+			<div class="prose prose-sm dark:prose-invert text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
 				{@html parseMarkdown(branch.content)}
 			</div>
-
-			<div class="mt-4 flex items-center justify-between">
-				<div class="text-sm text-gray-600 dark:text-gray-400">
-					{branch.articleCount}
-					{branch.articleCount === 1 ? 'article' : 'articles'}
-				</div>
-				<a
-					href="{base}{branch.route}"
-					class="hover:bg-primary-dark bg-primary-light dark:hover:bg-primary-default inline-block rounded-lg px-4 py-2 font-medium text-white transition duration-300 ease-in-out dark:text-gray-400"
+			<div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-500">
+				<span class="font-medium text-primary-default dark:text-primary-light">
+					{branch.articleCount} {branch.articleCount === 1 ? 'Article' : 'Articles'}
+				</span>
+				<span
+					class="inline-flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
 				>
-					View Details
-				</a>
+					View Project
+					<svg
+						class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+					>
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"
+						></path>
+					</svg>
+				</span>
 			</div>
 		</div>
-	</div>
+	</a>
 {/if}
