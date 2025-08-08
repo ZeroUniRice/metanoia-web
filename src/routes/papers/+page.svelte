@@ -63,11 +63,11 @@
 	<meta name="description" content="Browse all research papers from Metanoia." />
 </svelte:head>
 
-<div class="container mx-auto max-w-6xl py-12 px-4 sm:px-6 lg:px-8">
+<div class="container md:mx-24 max-w-6xl py-12 px-4 sm:px-6 lg:px-8">
 	<nav class="mb-8">
 		<a 
 			href="{base}/"
-			class="text-primary-default hover:text-primary-dark dark:text-primary-light dark:hover:text-white transition-colors"
+			class="md:text-lg text-primary-default hover:text-primary-dark dark:text-indigo-500 dark:hover:text-white transition-colors"
 		>
 			← Back to Home
 		</a>

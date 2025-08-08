@@ -34,11 +34,11 @@
 	<meta name="description" content="Details about {branch?.name || 'research branch'}" />
 </svelte:head>
 
-<div class="container mx-auto max-w-6xl px-6 py-8">
+<div class="container mx-24 px-6 py-8">
 	<nav class="mb-8">
 		<a
 			href="{base}/branches"
-			class="text-primary-default hover:text-primary-dark dark:text-primary-light dark:hover:text-white"
+			class="md:text-lg text-primary-default hover:text-primary-dark dark:text-indigo-500 dark:hover:text-white"
 		>
 			← Back to Projects
 		</a>
@@ -64,7 +64,7 @@
 
 		<!-- Branch Content -->
 		<div class="mb-12">
-			<article class="prose dark:prose-invert max-w-none">
+			<article class="prose dark:prose-invert max-w-6xl">
 				{@html parseMarkdown(branch.content)}
 			</article>
 		</div>

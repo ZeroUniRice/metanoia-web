@@ -8,7 +8,7 @@ export default [
     "route": "/branches/Glucose_Monitor",
     "content": "We will be looking at the impact of the new wave of personal metabolic sensors like CGMs (Continuous Glucose Monitors) and the window they give us into the hidden variables like the hormones of insulin and glucagon.\r\nFrom the CGM data, we can build models to predict the future metabolic state of an individual.",
     "bannerImage": "/branches/Glucose_Monitor/banner.png",
-    "standardImage": null,
+    "standardImage": "/branches/Glucose_Monitor/standard.png",
     "articles": [
       {
         "title": "Dotted Red Line Analysis: Automatic vs Manual Graph Extraction\r",
